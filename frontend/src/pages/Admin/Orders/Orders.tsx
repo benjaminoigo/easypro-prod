@@ -198,7 +198,6 @@ const Orders: React.FC = () => {
     <div className="orders-page">
       {/* Header */}
       <div className="page-header">
-        <h1 className="page-title">Orders Management</h1>
         <button className="create-btn" onClick={handleCreateOrder}>
           <Plus />
           Create Order

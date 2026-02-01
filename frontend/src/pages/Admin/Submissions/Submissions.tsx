@@ -170,9 +170,7 @@ const AdminSubmissions: React.FC = () => {
   return (
     <div className="admin-submissions-page">
       {/* Header */}
-      <div className="page-header">
-        <h1 className="page-title">Submissions Management</h1>
-      </div>
+      
 
       {/* Stats */}
       <div className="submissions-stats">

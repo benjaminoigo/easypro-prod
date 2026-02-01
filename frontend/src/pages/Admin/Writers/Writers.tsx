@@ -143,7 +143,6 @@ const Writers: React.FC = () => {
     <div className="writers-page">
       {/* Header */}
       <div className="page-header">
-        <h1 className="page-title">Writers Management</h1>
         <button className="invite-btn" onClick={handleOpenModal}>
           <UserPlus />
           Invite Writer

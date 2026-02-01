@@ -121,7 +121,6 @@ const Payments: React.FC = () => {
     <div className="payments-page">
       {/* Header */}
       <div className="page-header">
-        <h1 className="page-title">Payments Management</h1>
         <button className="export-btn">
           <Download />
           Export Report

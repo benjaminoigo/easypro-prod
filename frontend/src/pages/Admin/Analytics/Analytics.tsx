@@ -112,7 +112,6 @@ const Analytics: React.FC = () => {
       {/* Header */}
       <div className="page-header">
         <div className="header-left">
-          <h1 className="page-title">Analytics Dashboard</h1>
           <p className="page-subtitle">Track your business performance</p>
         </div>
         <div className="header-right">

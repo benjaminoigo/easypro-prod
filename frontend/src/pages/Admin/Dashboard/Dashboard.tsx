@@ -120,7 +120,6 @@ const Dashboard: React.FC = () => {
     <div className="admin-dashboard">
       {/* Header */}
       <div className="admin-header">
-        <h1 className="admin-header-title">Dashboard Overview</h1>
         <div className="admin-header-actions">
           <Link to="/admin/writers" className="admin-invite-btn">
             <UserPlus />

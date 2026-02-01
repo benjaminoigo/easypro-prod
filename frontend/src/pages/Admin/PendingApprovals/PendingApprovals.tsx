@@ -105,7 +105,6 @@ const PendingApprovals: React.FC = () => {
       {/* Header */}
       <div className="page-header">
         <div className="header-content">
-          <h1 className="page-title">Pending Approvals</h1>
           <p className="page-subtitle">Review and approve new writer registrations</p>
         </div>
         <button className="refresh-btn" onClick={fetchPendingUsers}>

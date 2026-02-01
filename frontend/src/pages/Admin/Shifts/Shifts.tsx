@@ -91,7 +91,6 @@ const Shifts: React.FC = () => {
     <div className="shifts-page">
       {/* Header */}
       <div className="page-header">
-        <h1 className="page-title">Shift Management</h1>
         <button className="settings-btn">
           <Settings />
           Shift Settings
