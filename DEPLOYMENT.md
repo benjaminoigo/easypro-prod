@@ -1,4 +1,59 @@
-# EasyPro - Render Deployment Guide
+# EasyPro Deployment Guide
+
+## Railway Deployment (Recommended for Monorepos)
+
+### Quick Setup
+
+1. **Create Railway Account**: Go to [railway.app](https://railway.app) and sign up
+
+2. **Create New Project**: Click "New Project" → "Deploy from GitHub repo"
+
+3. **Connect Repository**: Select your `easypro-prod` repository
+
+4. **Add PostgreSQL Database**:
+   - Click "New" → "Database" → "Add PostgreSQL"
+   - Railway will automatically provide `DATABASE_URL`
+
+5. **Create Backend Service**:
+   - Click "New" → "GitHub Repo" → Select the same repo
+   - Go to Settings → Set Root Directory to `backend`
+   - Add Environment Variables:
+     - `NODE_ENV`: `production`
+     - `JWT_SECRET`: (generate a secure random string)
+     - `JWT_EXPIRES_IN`: `7d`
+     - `DB_SYNCHRONIZE`: `false`
+     - `DATABASE_URL`: `${{Postgres.DATABASE_URL}}`
+     - `CORS_ORIGIN`: `${{frontend.RAILWAY_PUBLIC_DOMAIN}}`
+
+6. **Create Frontend Service**:
+   - Click "New" → "GitHub Repo" → Select the same repo
+   - Go to Settings → Set Root Directory to `frontend`
+   - Add Environment Variables:
+     - `REACT_APP_API_URL`: `https://${{backend.RAILWAY_PUBLIC_DOMAIN}}`
+
+7. **Generate Domains**:
+   - For each service, go to Settings → Networking → Generate Domain
+
+### Environment Variables Reference
+
+#### Backend Service
+| Variable | Value |
+|----------|-------|
+| NODE_ENV | production |
+| JWT_SECRET | (auto-generate) |
+| JWT_EXPIRES_IN | 7d |
+| DB_SYNCHRONIZE | false |
+| DATABASE_URL | ${{Postgres.DATABASE_URL}} |
+| CORS_ORIGIN | ${{frontend.RAILWAY_PUBLIC_DOMAIN}} |
+
+#### Frontend Service
+| Variable | Value |
+|----------|-------|
+| REACT_APP_API_URL | https://${{backend.RAILWAY_PUBLIC_DOMAIN}} |
+
+---
+
+## Render Deployment
 
 ## Overview
 This guide explains how to deploy the EasyPro Academic Writing Management System on Render.
