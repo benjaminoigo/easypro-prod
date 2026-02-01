@@ -1,0 +1,380 @@
+/* Writer Layout Styles */
+.writer-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.writer-layout-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  background: linear-gradient(180deg, #0f766e 0%, #065f46 100%);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.writer-layout-sidebar.collapsed {
+  transform: translateX(-100%);
+}
+
+@media (min-width: 1024px) {
+  .writer-layout-sidebar {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Sidebar Header */
+.writer-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.writer-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.writer-sidebar-logo-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.writer-sidebar-logo-icon svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.writer-sidebar-logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.5px;
+}
+
+.writer-sidebar-logo-text span {
+  color: #10b981;
+}
+
+.writer-sidebar-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.writer-sidebar-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+@media (max-width: 1023px) {
+  .writer-sidebar-close-btn {
+    display: block;
+  }
+}
+
+/* User Profile Section */
+.writer-sidebar-user {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.writer-sidebar-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.writer-sidebar-user-avatar {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.writer-sidebar-user-avatar svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.writer-sidebar-user-details h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 2px 0;
+}
+
+.writer-sidebar-user-details p {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  text-transform: capitalize;
+}
+
+/* Balance Card */
+.writer-sidebar-balance {
+  margin: 1rem 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.writer-sidebar-balance-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.writer-sidebar-balance-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+/* Navigation */
+.writer-sidebar-nav {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.writer-sidebar-nav-section {
+  padding: 0 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.writer-sidebar-nav-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.writer-sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.75rem;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+}
+
+.writer-sidebar-nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.writer-sidebar-nav-item.active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.writer-sidebar-nav-item svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Sidebar Footer */
+.writer-sidebar-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.writer-sidebar-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.writer-sidebar-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.writer-sidebar-logout-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Main Content Area */
+.writer-layout-main {
+  flex: 1;
+  margin-left: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+@media (min-width: 1024px) {
+  .writer-layout-main {
+    margin-left: 280px;
+  }
+}
+
+/* Top Header */
+.writer-layout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.writer-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.writer-menu-btn {
+  display: block;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.writer-menu-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+@media (min-width: 1024px) {
+  .writer-menu-btn {
+    display: none;
+  }
+}
+
+.writer-page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.writer-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.writer-header-shift {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f0fdf4;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  color: #15803d;
+}
+
+.writer-header-shift svg {
+  width: 16px;
+  height: 16px;
+}
+
+.writer-notification-btn {
+  position: relative;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.writer-notification-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.writer-notification-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* Page Content */
+.writer-layout-content {
+  flex: 1;
+  padding: 1.5rem;
+}
+
+/* Sidebar Overlay for Mobile */
+.writer-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+
+.writer-sidebar-overlay.visible {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .writer-sidebar-overlay {
+    display: none !important;
+  }
+}

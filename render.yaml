@@ -1,0 +1,50 @@
+services:
+  # Backend API Service
+  - type: web
+    name: easypro-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: DB_SYNCHRONIZE
+        value: false
+      - key: CORS_ORIGIN
+        fromService:
+          name: easypro-frontend
+          type: web
+          property: host
+      - key: DATABASE_URL
+        fromDatabase:
+          name: easypro-db
+          property: connectionString
+    healthCheckPath: /api
+
+  # Frontend Service
+  - type: web
+    name: easypro-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install --legacy-peer-deps && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          name: easypro-backend
+          type: web
+          property: hostURL
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: easypro-db
+    databaseName: easypro
+    plan: free

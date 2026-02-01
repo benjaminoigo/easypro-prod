@@ -1,0 +1,283 @@
+.submit-work-form {
+  max-width: 500px;
+}
+
+/* Order Info */
+.order-info {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.order-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.order-id {
+  font-size: 0.85rem;
+  color: var(--gray);
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.form-input.error {
+  border-color: var(--danger-color);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--danger-color);
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+}
+
+.error-message svg {
+  width: 14px;
+  height: 14px;
+}
+
+.input-hint {
+  display: block;
+  color: var(--gray);
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+}
+
+/* Earnings Preview */
+.earnings-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(39, 174, 96, 0.08);
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+}
+
+.earnings-label {
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.earnings-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #27ae60;
+}
+
+/* File Upload */
+.file-upload-area {
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.file-upload-area:hover {
+  border-color: var(--primary-color);
+  background: rgba(52, 152, 219, 0.02);
+}
+
+.file-upload-area.drag-active {
+  border-color: var(--primary-color);
+  background: rgba(52, 152, 219, 0.05);
+}
+
+.file-upload-area.has-file {
+  cursor: default;
+  padding: 1rem;
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.upload-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--gray);
+}
+
+.upload-text {
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.browse-link {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.upload-hint {
+  font-size: 0.8rem;
+  color: var(--gray);
+}
+
+/* Selected File */
+.selected-file {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  background: var(--light-gray);
+  border-radius: 6px;
+}
+
+.file-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.file-name {
+  display: block;
+  font-weight: 500;
+  color: var(--dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-size {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--gray);
+}
+
+.remove-file-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--gray);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.remove-file-btn:hover {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--danger-color);
+}
+
+.remove-file-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.form-actions .btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-actions .btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.form-actions .btn-secondary {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.form-actions .btn-secondary:hover {
+  background: var(--light-gray);
+}
+
+.form-actions .btn-primary {
+  background: #27ae60;
+  border: 1px solid #27ae60;
+  color: var(--white);
+}
+
+.form-actions .btn-primary:hover {
+  background: #219a52;
+}
+
+.form-actions .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .file-upload-area {
+    padding: 1.5rem;
+  }
+}

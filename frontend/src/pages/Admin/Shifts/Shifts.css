@@ -1,0 +1,372 @@
+/* Shifts Page Styles */
+.shifts-page {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Page Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1f3c;
+}
+
+.settings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+  background: #f8fafc;
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.settings-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Current Shift Card */
+.current-shift-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.shift-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.shift-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.status-indicator.active {
+  background: #4ade80;
+}
+
+.shift-status span {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.shift-time-remaining {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+}
+
+.shift-time-remaining svg {
+  width: 16px;
+  height: 16px;
+}
+
+.shift-time-remaining span {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.shift-card-body {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.shift-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.shift-info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.shift-info-item svg {
+  width: 20px;
+  height: 20px;
+  opacity: 0.8;
+}
+
+.shift-info-item .label {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-bottom: 0.125rem;
+}
+
+.shift-info-item .value {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.shift-progress {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: white;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Shifts Table */
+.shifts-table-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.table-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a1f3c;
+  margin: 0;
+}
+
+.shifts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.shifts-table th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.shifts-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.shifts-table tr:last-child td {
+  border-bottom: none;
+}
+
+.shifts-table tr:hover td {
+  background: #f8fafc;
+}
+
+/* Date Cell */
+.date-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.date-cell svg {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+}
+
+.date-cell span {
+  font-size: 0.875rem;
+  color: #1a1f3c;
+}
+
+/* Time Cell */
+.time-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-cell svg {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+}
+
+.time-cell span {
+  font-size: 0.875rem;
+  color: #1a1f3c;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.status-badge.active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.completed {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.scheduled {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Writers Cell */
+.writers-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.writers-cell svg {
+  width: 16px;
+  height: 16px;
+  color: #64748b;
+}
+
+.writers-cell span {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1a1f3c;
+}
+
+/* Orders Count */
+.orders-count {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1a1f3c;
+}
+
+/* Revenue */
+.revenue {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #10b981;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-size: 0.9375rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .shift-info-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .shifts-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .shift-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}

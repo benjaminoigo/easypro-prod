@@ -1,0 +1,11 @@
+/* Auth Layout Styles */
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  background: #f8fafc;
+}
+
+.auth-layout-children {
+  flex: 1;
+  display: flex;
+}

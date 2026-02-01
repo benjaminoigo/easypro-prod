@@ -1,0 +1,24 @@
+{
+  "name": "easypro-academic-writing-system",
+  "version": "1.0.0",
+  "description": "Academic Writing Management System with NestJS backend and React frontend",
+  "scripts": {
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "backend:dev": "cd backend && npm run start:dev",
+    "frontend:dev": "cd frontend && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build:all": "cd backend && npm run build && cd ../frontend && npm run build"
+  },
+  "keywords": [
+    "academic-writing",
+    "nestjs",
+    "react",
+    "typescript",
+    "postgresql"
+  ],
+  "author": "EasyPro Development Team",
+  "license": "PRIVATE",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
