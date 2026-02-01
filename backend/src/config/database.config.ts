@@ -4,11 +4,13 @@ import { ConfigService } from '@nestjs/config';
 export const getDatabaseConfig = (
   configService: ConfigService,
 ): TypeOrmModuleOptions => {
-  // Check for DATABASE_URL (Railway provides this)
+  const isProduction = configService.get<string>('NODE_ENV') === 'production';
+  
+  // Check for DATABASE_URL first (some cloud providers use this)
   const databaseUrl = configService.get<string>('DATABASE_URL');
   
   if (databaseUrl) {
-    // Parse DATABASE_URL for Railway deployment
+    // Parse DATABASE_URL for cloud deployment
     return {
       type: 'postgres',
       url: databaseUrl,
@@ -23,7 +25,7 @@ export const getDatabaseConfig = (
     };
   }
 
-  // Fallback to individual environment variables (local development)
+  // Use individual environment variables (Railway or local development)
   return {
     type: 'postgres',
     host: configService.get<string>('DB_HOST', 'localhost'),
@@ -32,9 +34,10 @@ export const getDatabaseConfig = (
     password: configService.get<string>('DB_PASSWORD', ''),
     database: configService.get<string>('DB_DATABASE', 'easypro'),
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-    synchronize: configService.get<boolean>('DB_SYNCHRONIZE', true),
+    synchronize: configService.get<boolean>('DB_SYNCHRONIZE', !isProduction),
     logging: configService.get<boolean>('DB_LOGGING', false),
     migrations: [__dirname + '/../migrations/*{.ts,.js}'],
     migrationsRun: configService.get<boolean>('DB_MIGRATIONS_RUN', false),
+    ssl: isProduction ? { rejectUnauthorized: false } : false,
   };
 };
