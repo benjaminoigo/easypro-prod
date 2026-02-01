@@ -35,10 +35,7 @@ services:
     staticPublishPath: build
     envVars:
       - key: REACT_APP_API_URL
-        fromService:
-          name: easypro-backend
-          type: web
-          property: hostURL
+        sync: false  # Set manually after deployment: https://easypro-backend.onrender.com
     routes:
       - type: rewrite
         source: /*
