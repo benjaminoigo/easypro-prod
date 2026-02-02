@@ -6,6 +6,7 @@ import {
   Body,
   UseGuards,
   Query,
+  Param,
 } from '@nestjs/common';
 import { ShiftsService } from './shifts.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -27,6 +28,27 @@ export class ShiftsController {
   @Get('stats')
   async getShiftStats(@CurrentUser() user: any) {
     return this.shiftsService.getShiftStats();
+  }
+
+  @Get('my-progress')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.WRITER)
+  async getMyShiftProgress(@CurrentUser() user: any) {
+    return this.shiftsService.getWriterShiftProgress(user.id);
+  }
+
+  @Get('writer-progress/:writerId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async getWriterProgress(@Param('writerId') writerId: string) {
+    return this.shiftsService.getWriterShiftProgressByWriterId(writerId);
+  }
+
+  @Get('all-writers-progress')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async getAllWritersProgress() {
+    return this.shiftsService.getAllWritersShiftProgress();
   }
 
   @Get('history')

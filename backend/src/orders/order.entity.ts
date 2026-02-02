@@ -87,6 +87,16 @@ export class Order {
   @Column({ nullable: true, name: 'cancelled_at' })
   cancelledAt?: Date;
 
+  @Column({ nullable: true, name: 'instructions', type: 'text' })
+  instructions?: string;
+
+  // Multiple file support for order attachments
+  @Column('simple-array', { nullable: true, name: 'attachment_paths' })
+  attachmentPaths?: string[];
+
+  @Column('simple-array', { nullable: true, name: 'attachment_names' })
+  attachmentNames?: string[];
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

@@ -24,7 +24,7 @@ export class SubmissionsService {
   async create(
     createSubmissionDto: CreateSubmissionDto,
     writerId: string,
-    file?: Express.Multer.File,
+    files?: Express.Multer.File[],
   ): Promise<Submission> {
     // Get writer and validate status
     const writer = await this.writerRepository.findOne({
@@ -80,17 +80,28 @@ export class SubmissionsService {
     // Calculate amount
     const amount = createSubmissionDto.pagesWorked * createSubmissionDto.cpp;
 
-    const submission = this.submissionRepository.create({
-      ...createSubmissionDto,
+    // Handle multiple files
+    const filePaths = files?.map(f => f.path) || [];
+    const fileNames = files?.map(f => f.originalname) || [];
+
+    const submissionData = {
+      orderId: createSubmissionDto.orderId,
       writerId,
+      pagesWorked: createSubmissionDto.pagesWorked,
+      cpp: createSubmissionDto.cpp,
+      notes: createSubmissionDto.notes,
       amount,
       shiftId: currentShift.id,
-      filePath: file?.path,
-      fileName: file?.originalname,
+      filePath: filePaths[0] || null,
+      fileName: fileNames[0] || null,
+      filePaths: filePaths,
+      fileNames: fileNames,
       status: SubmissionStatus.PENDING,
-    });
+    };
 
-    const savedSubmission = await this.submissionRepository.save(submission);
+    const submission = this.submissionRepository.create(submissionData as any);
+
+    const savedSubmission = await this.submissionRepository.save(submission) as unknown as Submission;
 
     // Update writer shift stats
     writer.currentShiftPages += createSubmissionDto.pagesWorked;

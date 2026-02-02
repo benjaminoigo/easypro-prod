@@ -8,7 +8,12 @@ import {
   Body,
   UseGuards,
   Query,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { OrdersService } from './orders.service';
 import { WritersService } from '../writers/writers.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -32,20 +37,58 @@ export class OrdersController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
-  async create(@Body() createOrderDto: CreateOrderDto, @CurrentUser() user: any) {
-    return this.ordersService.create(createOrderDto);
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: diskStorage({
+        destination: './uploads/orders',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          cb(null, `order-${uniqueSuffix}${ext}`);
+        },
+      }),
+      limits: {
+        fileSize: 50 * 1024 * 1024, // 50MB per file
+      },
+    }),
+  )
+  async create(
+    @Body() createOrderDto: CreateOrderDto,
+    @CurrentUser() user: any,
+    @UploadedFiles() files?: Express.Multer.File[],
+  ) {
+    return this.ordersService.create(createOrderDto, files);
   }
 
   @Post('register')
   @UseGuards(RolesGuard)
   @Roles(UserRole.WRITER)
-  async registerExternalOrder(@Body() createOrderDto: CreateOrderDto, @CurrentUser() user: any) {
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: diskStorage({
+        destination: './uploads/orders',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          cb(null, `order-${uniqueSuffix}${ext}`);
+        },
+      }),
+      limits: {
+        fileSize: 50 * 1024 * 1024, // 50MB per file
+      },
+    }),
+  )
+  async registerExternalOrder(
+    @Body() createOrderDto: CreateOrderDto,
+    @CurrentUser() user: any,
+    @UploadedFiles() files?: Express.Multer.File[],
+  ) {
     // Writer registers an external order they picked up
     const writer = await this.writersService.findByUserId(user.id);
     return this.ordersService.create({
       ...createOrderDto,
       writerId: writer.id,
-    });
+    }, files);
   }
 
   @Get()

@@ -7,10 +7,10 @@ import {
   Body,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
+  UploadedFiles,
   NotFoundException,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { SubmissionsService } from './submissions.service';
 import { WritersService } from '../writers/writers.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -32,10 +32,10 @@ export class SubmissionsController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles(UserRole.WRITER)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('files', 10)) // Allow up to 10 files
   async create(
     @Body() createSubmissionDto: CreateSubmissionDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
     @CurrentUser() user: any,
   ) {
     // Get writer by user ID
@@ -43,7 +43,7 @@ export class SubmissionsController {
     if (!writer) {
       throw new NotFoundException('Writer profile not found');
     }
-    return this.submissionsService.create(createSubmissionDto, writer.id, file);
+    return this.submissionsService.create(createSubmissionDto, writer.id, files);
   }
 
   @Get()

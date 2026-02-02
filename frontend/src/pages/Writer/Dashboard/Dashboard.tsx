@@ -16,6 +16,7 @@ import { Order, Submission, Writer } from '../../../types';
 import api from '../../../services/api';
 import { formatUSD } from '../../../utils/formatUSD';
 import { toast } from 'react-toastify';
+import ShiftProgressCard from '../../../components/common/ShiftProgressCard';
 import './Dashboard.css';
 
 interface WriterStats {
@@ -226,6 +227,11 @@ const Dashboard: React.FC = () => {
             out of 5.0
           </div>
         </div>
+      </div>
+
+      {/* Shift Progress Section */}
+      <div className="writer-shift-progress-section">
+        <ShiftProgressCard />
       </div>
 
       {/* Charts Section */}

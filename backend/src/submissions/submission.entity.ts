@@ -53,6 +53,12 @@ export class Submission {
   @Column({ nullable: true, name: 'file_name' })
   fileName?: string;
 
+  @Column({ type: 'simple-array', nullable: true, name: 'file_paths' })
+  filePaths?: string[];
+
+  @Column({ type: 'simple-array', nullable: true, name: 'file_names' })
+  fileNames?: string[];
+
   @Column({ type: 'text', nullable: true })
   notes?: string;
 

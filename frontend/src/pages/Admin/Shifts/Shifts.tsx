@@ -8,20 +8,62 @@ import {
   Pause,
   CheckCircle,
   AlertCircle,
+  Target,
+  TrendingUp,
+  RefreshCw,
+  Save,
 } from 'lucide-react';
 import { Shift } from '../../../types';
 import api from '../../../services/api';
 import { toast } from 'react-toastify';
 import './Shifts.css';
 
+interface WriterProgress {
+  writerId: string;
+  writerName: string;
+  writerEmail: string;
+  targetPages: number;
+  submittedPages: number;
+  approvedPages: number;
+  pendingPages: number;
+  rejectedPages: number;
+  remainingPages: number;
+  percentComplete: number;
+  isOnTarget: boolean;
+  submissionCount: number;
+}
+
+interface AllWritersProgress {
+  currentShift: {
+    id: string;
+    startTime: string;
+    endTime: string;
+    targetPages: number;
+  };
+  writers: WriterProgress[];
+  summary: {
+    totalWriters: number;
+    writersAtTarget: number;
+    writersOnTrack: number;
+    writersBehind: number;
+    totalApprovedPages: number;
+    totalPendingPages: number;
+  };
+}
+
 const Shifts: React.FC = () => {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentShift, setCurrentShift] = useState<Shift | null>(null);
+  const [writersProgress, setWritersProgress] = useState<AllWritersProgress | null>(null);
+  const [maxPages, setMaxPages] = useState<number>(20);
+  const [showSettings, setShowSettings] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchShifts();
     fetchCurrentShift();
+    fetchWritersProgress();
   }, []);
 
   const fetchShifts = async () => {
@@ -40,9 +82,40 @@ const Shifts: React.FC = () => {
     try {
       const response = await api.get('/shifts/current');
       setCurrentShift(response.data);
+      setMaxPages(response.data.maxPagesPerShift || 20);
     } catch (error) {
       console.error('Error fetching current shift:', error);
     }
+  };
+
+  const fetchWritersProgress = async () => {
+    try {
+      const response = await api.get('/shifts/all-writers-progress');
+      setWritersProgress(response.data);
+    } catch (error) {
+      console.error('Error fetching writers progress:', error);
+    }
+  };
+
+  const handleUpdateMaxPages = async () => {
+    setSaving(true);
+    try {
+      await api.put('/shifts/max-pages', { maxPages });
+      toast.success(`Target pages updated to ${maxPages}`);
+      fetchCurrentShift();
+      fetchWritersProgress();
+      setShowSettings(false);
+    } catch (error) {
+      console.error('Error updating max pages:', error);
+      toast.error('Failed to update target pages');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchWritersProgress();
+    toast.info('Progress refreshed');
   };
 
   const formatTime = (date: string) => {
@@ -91,11 +164,54 @@ const Shifts: React.FC = () => {
     <div className="shifts-page">
       {/* Header */}
       <div className="page-header">
-        <button className="settings-btn">
-          <Settings />
-          Shift Settings
-        </button>
+        <div className="header-actions">
+          <button className="refresh-btn" onClick={handleRefresh}>
+            <RefreshCw />
+            Refresh
+          </button>
+          <button className="settings-btn" onClick={() => setShowSettings(!showSettings)}>
+            <Settings />
+            Shift Settings
+          </button>
+        </div>
       </div>
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="settings-modal">
+          <div className="settings-modal-content">
+            <h3>Shift Settings</h3>
+            <div className="settings-form">
+              <label>
+                <span>Target Pages Per Shift</span>
+                <input
+                  type="number"
+                  value={maxPages}
+                  onChange={(e) => setMaxPages(parseInt(e.target.value) || 20)}
+                  min={1}
+                  max={100}
+                />
+              </label>
+              <p className="settings-help">
+                Writers need to complete this many approved pages per shift.
+              </p>
+              <div className="settings-actions">
+                <button className="cancel-btn" onClick={() => setShowSettings(false)}>
+                  Cancel
+                </button>
+                <button 
+                  className="save-btn" 
+                  onClick={handleUpdateMaxPages}
+                  disabled={saving}
+                >
+                  <Save size={16} />
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Current Shift Card */}
       {currentShift && (
@@ -146,6 +262,79 @@ const Shifts: React.FC = () => {
               <span className="progress-text">{Math.round(getShiftProgress())}% complete</span>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Writers Progress Section */}
+      {writersProgress && (
+        <div className="writers-progress-section">
+          <div className="section-header">
+            <h3>
+              <Target size={20} />
+              Writers Shift Progress
+            </h3>
+            <div className="progress-summary">
+              <div className="summary-item success">
+                <CheckCircle size={16} />
+                <span>{writersProgress.summary.writersAtTarget} at target</span>
+              </div>
+              <div className="summary-item warning">
+                <TrendingUp size={16} />
+                <span>{writersProgress.summary.writersOnTrack} on track</span>
+              </div>
+              <div className="summary-item danger">
+                <AlertCircle size={16} />
+                <span>{writersProgress.summary.writersBehind} behind</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="writers-progress-grid">
+            {writersProgress.writers.map((writer) => (
+              <div 
+                key={writer.writerId} 
+                className={`writer-progress-card ${
+                  writer.isOnTarget ? 'on-target' : 
+                  writer.percentComplete >= 50 ? 'on-track' : 'behind'
+                }`}
+              >
+                <div className="writer-info">
+                  <h4>{writer.writerName}</h4>
+                  <span className="writer-email">{writer.writerEmail}</span>
+                </div>
+                <div className="writer-progress-bar">
+                  <div 
+                    className="progress-fill"
+                    style={{ width: `${Math.min(100, writer.percentComplete)}%` }}
+                  ></div>
+                </div>
+                <div className="writer-stats">
+                  <div className="stat">
+                    <span className="stat-value">{writer.approvedPages}</span>
+                    <span className="stat-label">Approved</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-value">{writer.pendingPages}</span>
+                    <span className="stat-label">Pending</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-value">{writer.remainingPages}</span>
+                    <span className="stat-label">Remaining</span>
+                  </div>
+                </div>
+                <div className="writer-percent">
+                  {writer.percentComplete}%
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {writersProgress.writers.length === 0 && (
+            <div className="no-writers">
+              <Users size={48} />
+              <p>No writers have submitted work this shift yet.</p>
+            </div>
+          )}
         </div>
       )}
 

@@ -19,7 +19,7 @@ export class OrdersService {
     private readonly statusLogRepository: Repository<WriterStatusLog>,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(createOrderDto: CreateOrderDto, files?: Express.Multer.File[]): Promise<Order> {
     // Use provided order number or generate a unique one
     const orderNumber = createOrderDto.orderNumber || await this.generateOrderNumber();
     
@@ -29,11 +29,17 @@ export class OrdersService {
     // Set status based on whether a writer is assigned
     const status = createOrderDto.writerId ? OrderStatus.ASSIGNED : OrderStatus.ASSIGNED;
 
+    // Handle multiple file uploads
+    const attachmentPaths = files?.map(f => f.path) || [];
+    const attachmentNames = files?.map(f => f.originalname) || [];
+
     const order = this.orderRepository.create({
       ...createOrderDto,
       orderNumber,
       totalAmount,
       status,
+      attachmentPaths,
+      attachmentNames,
     });
 
     return this.orderRepository.save(order);
