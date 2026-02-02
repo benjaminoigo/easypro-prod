@@ -207,7 +207,6 @@ const MyOrders: React.FC = () => {
     <div className="my-orders-page">
       {/* Header */}
       <div className="page-header">
-        <h1 className="page-title">My Orders</h1>
         <div className="header-actions">
           <div className="orders-summary">
             <span className="summary-item">

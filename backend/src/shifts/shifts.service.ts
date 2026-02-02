@@ -251,7 +251,8 @@ export class ShiftsService {
     let rejectedPages = 0;
 
     submissions.forEach(sub => {
-      const pages = sub.order?.pages || 0;
+      // Use pagesWorked from submission, not order.pages
+      const pages = sub.pagesWorked || 0;
       switch (sub.status) {
         case SubmissionStatus.APPROVED:
           approvedPages += pages;

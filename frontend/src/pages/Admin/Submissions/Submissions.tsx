@@ -137,7 +137,8 @@ const AdminSubmissions: React.FC = () => {
     
     try {
       const fileName = submission.filePath.replace(/^uploads[\\/]/, '');
-      const downloadUrl = `http://localhost:3001/api/uploads/${fileName}`;
+      const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+      const downloadUrl = `${apiBaseUrl}/uploads/${fileName}`;
       
       const link = document.createElement('a');
       link.href = downloadUrl;

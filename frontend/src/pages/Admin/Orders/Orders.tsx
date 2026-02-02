@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Search,
   Filter,
@@ -13,6 +13,8 @@ import {
   X,
   Calendar,
   Save,
+  Upload,
+  File,
 } from 'lucide-react';
 import { Order } from '../../../types';
 import api from '../../../services/api';
@@ -50,6 +52,8 @@ const Orders: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<OrderFormData>({
     subject: '',
     instructions: '',
@@ -128,6 +132,7 @@ const Orders: React.FC = () => {
       writerId: '',
       status: 'pending',
     });
+    setSelectedFiles([]);
     setShowCreateModal(true);
   };
 
@@ -145,9 +150,26 @@ const Orders: React.FC = () => {
         toast.success('Order updated successfully');
         setShowEditModal(false);
       } else {
-        await api.post('/orders', formData);
+        // Use FormData for file uploads
+        const submitData = new FormData();
+        submitData.append('subject', formData.subject);
+        submitData.append('deadline', formData.deadline);
+        submitData.append('pages', formData.pages.toString());
+        submitData.append('cpp', formData.cpp.toString());
+        if (formData.instructions) submitData.append('instructions', formData.instructions);
+        if (formData.writerId) submitData.append('writerId', formData.writerId);
+        
+        // Append files
+        selectedFiles.forEach((file) => {
+          submitData.append('files', file);
+        });
+
+        await api.post('/orders', submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
         toast.success('Order created successfully');
         setShowCreateModal(false);
+        setSelectedFiles([]);
       }
       setSelectedOrder(null);
       fetchOrders();
@@ -157,6 +179,17 @@ const Orders: React.FC = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      setSelectedFiles(prev => [...prev, ...Array.from(files)]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const getStatusBadgeClass = (status: string) => {
@@ -513,6 +546,45 @@ const Orders: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                 />
               </div>
+              {!showEditModal && (
+                <div className="form-group">
+                  <label>Attachments</label>
+                  <div className="file-upload-area">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      multiple
+                      style={{ display: 'none' }}
+                    />
+                    <button
+                      type="button"
+                      className="upload-btn"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload size={18} />
+                      Add Files
+                    </button>
+                    {selectedFiles.length > 0 && (
+                      <div className="selected-files">
+                        {selectedFiles.map((file, index) => (
+                          <div key={index} className="file-item">
+                            <File size={14} />
+                            <span className="file-name">{file.name}</span>
+                            <button
+                              type="button"
+                              className="remove-file-btn"
+                              onClick={() => removeFile(index)}
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="total-preview">
                 <span>Total Amount:</span>
                 <strong>{formatUSD(formData.pages * formData.cpp)}</strong>

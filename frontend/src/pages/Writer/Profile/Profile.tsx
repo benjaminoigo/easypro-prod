@@ -127,9 +127,6 @@ const Profile: React.FC = () => {
   return (
     <div className="profile-page">
       {/* Header */}
-      <div className="page-header">
-        <h1 className="page-title">My Profile</h1>
-      </div>
 
       {/* Profile Card */}
       <div className="profile-layout">

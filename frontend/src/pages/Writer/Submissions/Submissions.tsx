@@ -101,7 +101,8 @@ const Submissions: React.FC = () => {
     try {
       // Extract just the filename from the path (remove 'uploads\\' or 'uploads/')
       const fileName = submission.filePath.replace(/^uploads[\\/]/, '');
-      const downloadUrl = `http://localhost:3001/api/uploads/${fileName}`;
+      const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+      const downloadUrl = `${apiBaseUrl}/uploads/${fileName}`;
       
       // Open in new tab or trigger download
       const link = document.createElement('a');
@@ -135,9 +136,6 @@ const Submissions: React.FC = () => {
   return (
     <div className="submissions-page">
       {/* Header */}
-      <div className="page-header">
-        <h1 className="page-title">My Submissions</h1>
-      </div>
 
       {/* Stats */}
       <div className="submissions-stats">
