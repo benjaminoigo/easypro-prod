@@ -41,50 +41,39 @@ export class ShiftsService {
   }
 
   async createNewShift(maxPages: number = 25): Promise<Shift> {
-    // End ALL active shifts first
-    await this.shiftRepository.update(
-      { isActive: true },
-      { isActive: false }
-    );
+    try {
+      // End ALL active shifts first
+      await this.shiftRepository.update(
+        { isActive: true },
+        { isActive: false }
+      );
 
-    const now = new Date();
-    const shiftStart = this.getCurrentShiftStart(now);
-    const shiftEnd = new Date(shiftStart);
-    shiftEnd.setHours(shiftEnd.getHours() + 24); // 24 hours later
-    shiftEnd.setSeconds(shiftEnd.getSeconds() - 1); // 5:59:59 AM next day
+      const now = new Date();
+      const shiftStart = this.getCurrentShiftStart(now);
+      const shiftEnd = new Date(shiftStart.getTime() + (24 * 60 * 60 * 1000) - 1000); // 24 hours - 1 second
 
-    // Check if a shift with this start time already exists
-    const existingShift = await this.shiftRepository.findOne({
-      where: { startTime: shiftStart }
-    });
+      this.logger.log(`Creating shift: ${shiftStart.toISOString()} to ${shiftEnd.toISOString()}`);
 
-    let savedShift: Shift;
-
-    if (existingShift) {
-      // Update and reactivate the existing shift
-      existingShift.isActive = true;
-      existingShift.maxPagesPerShift = maxPages;
-      existingShift.endTime = shiftEnd;
-      savedShift = await this.shiftRepository.save(existingShift);
-      this.logger.log(`Existing shift reactivated: ${savedShift.id}`);
-    } else {
-      // Create new shift
+      // Create new shift (don't try to find existing - just create fresh)
       const newShift = this.shiftRepository.create({
         startTime: shiftStart,
         endTime: shiftEnd,
         maxPagesPerShift: maxPages,
         isActive: true,
       });
-      savedShift = await this.shiftRepository.save(newShift);
+      const savedShift = await this.shiftRepository.save(newShift);
       this.logger.log(`New shift created: ${savedShift.id}`);
+
+      // Reset all writers' shift stats
+      await this.resetAllWriterShiftStats();
+
+      this.logger.log(`Shift active: ${savedShift.id} (${shiftStart.toISOString()} - ${shiftEnd.toISOString()})`);
+
+      return savedShift;
+    } catch (error) {
+      this.logger.error('Error creating shift:', error);
+      throw error;
     }
-
-    // Reset all writers' shift stats
-    await this.resetAllWriterShiftStats();
-
-    this.logger.log(`Shift active: ${savedShift.id} (${shiftStart.toISOString()} - ${shiftEnd.toISOString()})`);
-
-    return savedShift;
   }
 
   @Cron('0 3 * * *') // Every day at 3:00 AM UTC = 6:00 AM EAT
