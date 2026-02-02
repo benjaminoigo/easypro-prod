@@ -237,13 +237,19 @@ export class ShiftsService {
    */
   private async calculateWriterProgress(writer: Writer, shift: Shift): Promise<any> {
     // Get submissions for this writer during current shift
-    const submissions = await this.submissionRepository.find({
-      where: {
-        writer: { id: writer.id },
-        createdAt: MoreThan(shift.startTime),
-      },
-      relations: ['order'],
-    });
+    // Include submissions created during the shift OR approved during the shift
+    const submissions = await this.submissionRepository
+      .createQueryBuilder('submission')
+      .leftJoinAndSelect('submission.order', 'order')
+      .where('submission.writerId = :writerId', { writerId: writer.id })
+      .andWhere(
+        '(submission.createdAt >= :shiftStart OR (submission.status = :approved AND submission.reviewedAt >= :shiftStart))',
+        { 
+          shiftStart: shift.startTime,
+          approved: SubmissionStatus.APPROVED 
+        }
+      )
+      .getMany();
 
     // Calculate pages from submissions
     let approvedPages = 0;
