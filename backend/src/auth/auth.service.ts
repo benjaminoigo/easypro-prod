@@ -141,8 +141,15 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + expiryHours);
     
-    // Frontend URL for registration (use env variable or default to localhost:3002)
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3002');
+    // Frontend URL for registration - MUST be set in production via FRONTEND_URL env var
+    const nodeEnv = this.configService.get<string>('NODE_ENV', 'development');
+    const defaultUrl = nodeEnv === 'production' ? '' : 'http://localhost:3002';
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL', defaultUrl);
+    
+    if (!frontendUrl) {
+      throw new Error('FRONTEND_URL environment variable must be set in production');
+    }
+    
     const inviteUrl = `${frontendUrl}/register?invite=${inviteToken}`;
     
     // Create a placeholder record with the invite token
