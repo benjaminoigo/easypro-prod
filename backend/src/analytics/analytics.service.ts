@@ -177,14 +177,14 @@ export class AnalyticsService {
       .select([
         'COUNT(*) as totalOrders',
         'COUNT(CASE WHEN status = :completed THEN 1 END) as completedOrders',
-        'SUM(CASE WHEN status = :completed THEN total_amount ELSE 0 END) as totalCompleted',
+        'SUM(CASE WHEN status = :completed THEN order."totalAmount" ELSE 0 END) as totalCompleted',
       ])
       .setParameter('completed', OrderStatus.SUBMITTED)
       .getRawOne();
 
     return {
-      totalOrders: parseInt(stats.totalOrders),
-      completedOrders: parseInt(stats.completedOrders),
+      totalOrders: parseInt(stats.totalOrders || '0'),
+      completedOrders: parseInt(stats.completedOrders || '0'),
       totalCompletedAmount: parseFloat(stats.totalCompleted) || 0,
     };
   }

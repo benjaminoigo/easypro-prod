@@ -136,13 +136,15 @@ export class ShiftsService {
   }
 
   private async resetAllWriterShiftStats(): Promise<void> {
-    await this.writerRepository.update(
-      {},
-      {
+    // Use query builder to update all writers (empty criteria not allowed in .update())
+    await this.writerRepository
+      .createQueryBuilder()
+      .update()
+      .set({
         currentShiftPages: 0,
         currentShiftOrders: 0,
-      }
-    );
+      })
+      .execute();
   }
 
   async getShiftStats(): Promise<any> {
