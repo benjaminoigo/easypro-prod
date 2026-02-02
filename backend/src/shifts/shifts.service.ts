@@ -87,9 +87,9 @@ export class ShiftsService {
     return savedShift;
   }
 
-  @Cron('0 6 * * *') // Every day at 6:00 AM
+  @Cron('0 3 * * *') // Every day at 3:00 AM UTC = 6:00 AM EAT
   async handleShiftCreation() {
-    this.logger.log('Creating new shift at 6:00 AM');
+    this.logger.log('Creating new shift at 6:00 AM EAT (3:00 AM UTC)');
     try {
       await this.createNewShift();
       this.logger.log('New shift created successfully');
@@ -112,31 +112,37 @@ export class ShiftsService {
   }
 
   private getNextShiftStart(from: Date): Date {
+    // Target: 6 AM in East Africa Time (UTC+3)
+    // 6 AM EAT = 3 AM UTC
+    const TARGET_HOUR_UTC = 3; // 6 AM EAT = 3 AM UTC
+    
     const shiftStart = new Date(from);
     
-    // If it's already past 6 AM today, set for 6 AM tomorrow
-    // If it's before 6 AM today, set for 6 AM today
-    if (shiftStart.getHours() >= 6) {
-      shiftStart.setDate(shiftStart.getDate() + 1);
+    // If it's already past 3 AM UTC (6 AM EAT) today, set for tomorrow
+    if (shiftStart.getUTCHours() >= TARGET_HOUR_UTC) {
+      shiftStart.setUTCDate(shiftStart.getUTCDate() + 1);
     }
     
-    shiftStart.setHours(6, 0, 0, 0);
+    shiftStart.setUTCHours(TARGET_HOUR_UTC, 0, 0, 0);
     return shiftStart;
   }
 
   /**
-   * Get the start time of the current shift period (6 AM today or yesterday)
+   * Get the start time of the current shift period (6 AM EAT today or yesterday)
    */
   private getCurrentShiftStart(from: Date): Date {
+    // Target: 6 AM in East Africa Time (UTC+3)
+    // 6 AM EAT = 3 AM UTC
+    const TARGET_HOUR_UTC = 3; // 6 AM EAT = 3 AM UTC
+    
     const shiftStart = new Date(from);
     
-    // If it's before 6 AM, the current shift started at 6 AM yesterday
-    // If it's 6 AM or later, the current shift started at 6 AM today
-    if (shiftStart.getHours() < 6) {
-      shiftStart.setDate(shiftStart.getDate() - 1);
+    // If it's before 3 AM UTC (6 AM EAT), the current shift started yesterday
+    if (shiftStart.getUTCHours() < TARGET_HOUR_UTC) {
+      shiftStart.setUTCDate(shiftStart.getUTCDate() - 1);
     }
     
-    shiftStart.setHours(6, 0, 0, 0);
+    shiftStart.setUTCHours(TARGET_HOUR_UTC, 0, 0, 0);
     return shiftStart;
   }
 
