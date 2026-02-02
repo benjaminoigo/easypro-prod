@@ -48,10 +48,10 @@ export class ShiftsService {
     );
 
     const now = new Date();
-    const shiftStart = this.getNextShiftStart(now);
+    const shiftStart = this.getCurrentShiftStart(now);
     const shiftEnd = new Date(shiftStart);
-    shiftEnd.setHours(5, 59, 59, 999); // 5:59:59.999 AM next day
-    shiftEnd.setDate(shiftEnd.getDate() + 1);
+    shiftEnd.setHours(shiftEnd.getHours() + 24); // 24 hours later
+    shiftEnd.setSeconds(shiftEnd.getSeconds() - 1); // 5:59:59 AM next day
 
     const newShift = this.shiftRepository.create({
       startTime: shiftStart,
@@ -101,6 +101,22 @@ export class ShiftsService {
     // If it's before 6 AM today, set for 6 AM today
     if (shiftStart.getHours() >= 6) {
       shiftStart.setDate(shiftStart.getDate() + 1);
+    }
+    
+    shiftStart.setHours(6, 0, 0, 0);
+    return shiftStart;
+  }
+
+  /**
+   * Get the start time of the current shift period (6 AM today or yesterday)
+   */
+  private getCurrentShiftStart(from: Date): Date {
+    const shiftStart = new Date(from);
+    
+    // If it's before 6 AM, the current shift started at 6 AM yesterday
+    // If it's 6 AM or later, the current shift started at 6 AM today
+    if (shiftStart.getHours() < 6) {
+      shiftStart.setDate(shiftStart.getDate() - 1);
     }
     
     shiftStart.setHours(6, 0, 0, 0);
