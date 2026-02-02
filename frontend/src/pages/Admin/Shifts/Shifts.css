@@ -403,6 +403,53 @@
   height: 16px;
 }
 
+/* Create New Shift Button */
+.create-shift-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.create-shift-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.create-shift-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Warning Text in Modal */
+.warning-text {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 1rem;
+  color: #92400e;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+/* Create Button Variant */
+.create-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.create-btn:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
 /* Settings Modal */
 .settings-modal {
   position: fixed;

@@ -12,6 +12,7 @@ import {
   TrendingUp,
   RefreshCw,
   Save,
+  Plus,
 } from 'lucide-react';
 import { Shift } from '../../../types';
 import api from '../../../services/api';
@@ -59,6 +60,8 @@ const Shifts: React.FC = () => {
   const [maxPages, setMaxPages] = useState<number>(20);
   const [showSettings, setShowSettings] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     fetchShifts();
@@ -118,6 +121,23 @@ const Shifts: React.FC = () => {
     toast.info('Progress refreshed');
   };
 
+  const handleCreateNewShift = async () => {
+    setCreating(true);
+    try {
+      await api.post('/shifts/create', { maxPages });
+      toast.success('New shift created successfully!');
+      setShowCreateModal(false);
+      fetchCurrentShift();
+      fetchShifts();
+      fetchWritersProgress();
+    } catch (error) {
+      console.error('Error creating new shift:', error);
+      toast.error('Failed to create new shift');
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const formatTime = (date: string) => {
     return new Date(date).toLocaleTimeString('en-US', {
       hour: '2-digit',
@@ -173,6 +193,10 @@ const Shifts: React.FC = () => {
             <Settings />
             Shift Settings
           </button>
+          <button className="create-shift-btn" onClick={() => setShowCreateModal(true)}>
+            <Plus />
+            Create New Shift
+          </button>
         </div>
       </div>
 
@@ -206,6 +230,44 @@ const Shifts: React.FC = () => {
                 >
                   <Save size={16} />
                   {saving ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create New Shift Modal */}
+      {showCreateModal && (
+        <div className="settings-modal">
+          <div className="settings-modal-content">
+            <h3>Create New Shift</h3>
+            <div className="settings-form">
+              <p className="warning-text">
+                ⚠️ This will end the current shift and start a new one immediately.
+                All writer progress will be reset.
+              </p>
+              <label>
+                <span>Target Pages for New Shift</span>
+                <input
+                  type="number"
+                  value={maxPages}
+                  onChange={(e) => setMaxPages(parseInt(e.target.value) || 25)}
+                  min={1}
+                  max={100}
+                />
+              </label>
+              <div className="settings-actions">
+                <button className="cancel-btn" onClick={() => setShowCreateModal(false)}>
+                  Cancel
+                </button>
+                <button 
+                  className="save-btn create-btn" 
+                  onClick={handleCreateNewShift}
+                  disabled={creating}
+                >
+                  <Plus size={16} />
+                  {creating ? 'Creating...' : 'Create New Shift'}
                 </button>
               </div>
             </div>
