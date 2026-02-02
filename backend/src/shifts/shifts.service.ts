@@ -40,8 +40,8 @@ export class ShiftsService {
     return currentShift;
   }
 
-  async createNewShift(maxPages: number = 20): Promise<Shift> {
-    // End the current active shift
+  async createNewShift(maxPages: number = 25): Promise<Shift> {
+    // End ALL active shifts first
     await this.shiftRepository.update(
       { isActive: true },
       { isActive: false }
@@ -53,19 +53,36 @@ export class ShiftsService {
     shiftEnd.setHours(shiftEnd.getHours() + 24); // 24 hours later
     shiftEnd.setSeconds(shiftEnd.getSeconds() - 1); // 5:59:59 AM next day
 
-    const newShift = this.shiftRepository.create({
-      startTime: shiftStart,
-      endTime: shiftEnd,
-      maxPagesPerShift: maxPages,
-      isActive: true,
+    // Check if a shift with this start time already exists
+    const existingShift = await this.shiftRepository.findOne({
+      where: { startTime: shiftStart }
     });
 
-    const savedShift = await this.shiftRepository.save(newShift);
+    let savedShift: Shift;
+
+    if (existingShift) {
+      // Update and reactivate the existing shift
+      existingShift.isActive = true;
+      existingShift.maxPagesPerShift = maxPages;
+      existingShift.endTime = shiftEnd;
+      savedShift = await this.shiftRepository.save(existingShift);
+      this.logger.log(`Existing shift reactivated: ${savedShift.id}`);
+    } else {
+      // Create new shift
+      const newShift = this.shiftRepository.create({
+        startTime: shiftStart,
+        endTime: shiftEnd,
+        maxPagesPerShift: maxPages,
+        isActive: true,
+      });
+      savedShift = await this.shiftRepository.save(newShift);
+      this.logger.log(`New shift created: ${savedShift.id}`);
+    }
 
     // Reset all writers' shift stats
     await this.resetAllWriterShiftStats();
 
-    this.logger.log(`New shift created: ${savedShift.id} (${shiftStart.toISOString()} - ${shiftEnd.toISOString()})`);
+    this.logger.log(`Shift active: ${savedShift.id} (${shiftStart.toISOString()} - ${shiftEnd.toISOString()})`);
 
     return savedShift;
   }
