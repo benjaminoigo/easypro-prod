@@ -157,7 +157,7 @@ const MyOrders: React.FC = () => {
       formData.append('pagesWorked', data.pagesWorked.toString());
       formData.append('cpp', (Number(selectedOrder.cpp) || 3.00).toString());
       if (data.notes) formData.append('notes', data.notes);
-      if (data.file) formData.append('file', data.file);
+      if (data.file) formData.append('files', data.file);
 
       console.log('FormData orderId:', selectedOrder.id);
       console.log('FormData pagesWorked:', data.pagesWorked);

@@ -72,7 +72,7 @@ class OrderService {
     formData.append('orderId', orderId);
     formData.append('pagesWorked', data.pagesWorked.toString());
     if (data.notes) formData.append('notes', data.notes);
-    if (data.file) formData.append('file', data.file);
+    if (data.file) formData.append('files', data.file);
 
     const response = await apiClient.post<Submission>('/submissions', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
