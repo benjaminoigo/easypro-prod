@@ -195,8 +195,8 @@ export class AnalyticsService {
         'COUNT(*) as totalOrders',
         'COUNT(CASE WHEN status = :completed THEN 1 END) as completedOrders',
         'COUNT(CASE WHEN status IN (:...activeStatuses) THEN 1 END) as activeOrders',
-        'SUM(CASE WHEN status = :completed THEN order."totalAmount" ELSE 0 END) as totalRevenue',
-        'COUNT(CASE WHEN status = :completed AND order.createdAt >= :thisMonthStart THEN 1 END) as completedThisMonth',
+        'SUM(CASE WHEN status = :completed THEN total_amount ELSE 0 END) as totalRevenue',
+        'COUNT(CASE WHEN status = :completed AND order.created_at >= :thisMonthStart THEN 1 END) as completedThisMonth',
       ])
       .setParameter('completed', OrderStatus.SUBMITTED)
       .setParameter('activeStatuses', [OrderStatus.ASSIGNED, OrderStatus.IN_PROGRESS])
@@ -338,11 +338,11 @@ export class AnalyticsService {
     const orders = await this.orderRepository
       .createQueryBuilder('order')
       .select([
-        'EXTRACT(DOW FROM order.createdAt) as dayOfWeek',
+        'EXTRACT(DOW FROM order.created_at) as dayOfWeek',
         'COUNT(*) as count',
       ])
-      .where('order.createdAt >= :startOfWeek', { startOfWeek })
-      .groupBy('EXTRACT(DOW FROM order.createdAt)')
+      .where('order.created_at >= :startOfWeek', { startOfWeek })
+      .groupBy('EXTRACT(DOW FROM order.created_at)')
       .getRawMany();
 
     // Create a map for quick lookup
@@ -396,8 +396,8 @@ export class AnalyticsService {
 
     const count = await this.submissionRepository
       .createQueryBuilder('submission')
-      .select('COUNT(DISTINCT submission.writerId)', 'count')
-      .where('submission.createdAt >= :today', { today })
+      .select('COUNT(DISTINCT submission.writer_id)', 'count')
+      .where('submission.created_at >= :today', { today })
       .getRawOne();
 
     return parseInt(count?.count) || 0;
@@ -412,16 +412,16 @@ export class AnalyticsService {
     const [thisMonthRevenue, lastMonthRevenue] = await Promise.all([
       this.orderRepository
         .createQueryBuilder('order')
-        .select('SUM(order."totalAmount")', 'total')
+        .select('SUM(total_amount)', 'total')
         .where('order.status = :status', { status: OrderStatus.SUBMITTED })
-        .andWhere('order.createdAt >= :start', { start: thisMonthStart })
+        .andWhere('order.created_at >= :start', { start: thisMonthStart })
         .getRawOne(),
       this.orderRepository
         .createQueryBuilder('order')
-        .select('SUM(order."totalAmount")', 'total')
+        .select('SUM(total_amount)', 'total')
         .where('order.status = :status', { status: OrderStatus.SUBMITTED })
-        .andWhere('order.createdAt >= :start', { start: lastMonthStart })
-        .andWhere('order.createdAt <= :end', { end: lastMonthEnd })
+        .andWhere('order.created_at >= :start', { start: lastMonthStart })
+        .andWhere('order.created_at <= :end', { end: lastMonthEnd })
         .getRawOne(),
     ]);
 
