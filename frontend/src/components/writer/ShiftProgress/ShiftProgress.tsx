@@ -112,7 +112,7 @@ const ShiftProgress: React.FC<ShiftProgressProps> = ({
             <TrendingUp />
           </div>
           <div className="stat-content">
-            <span className="stat-value">${earnings.toFixed(2)}</span>
+            <span className="stat-value">KSh {earnings.toFixed(2)}</span>
             <span className="stat-label">Earned</span>
           </div>
         </div>

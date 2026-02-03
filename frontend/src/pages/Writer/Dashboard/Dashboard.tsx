@@ -243,7 +243,7 @@ const Dashboard: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="day" />
               <YAxis />
-              <Tooltip formatter={(value) => [`$${value}`, 'Earnings']} />
+              <Tooltip formatter={(value) => [`KSh ${value}`, 'Earnings']} />
               <Line type="monotone" dataKey="earnings" stroke="#10B981" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>

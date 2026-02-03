@@ -114,7 +114,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title }) => {
               {user?.role === 'writer' && (
                 <div className="text-sm text-gray-600">
                   Balance: <span className="font-medium text-green-600">
-                    ${user.writerProfile?.balanceUSD || 0}
+                    KSh {user.writerProfile?.balanceUSD || 0}
                   </span>
                 </div>
               )}

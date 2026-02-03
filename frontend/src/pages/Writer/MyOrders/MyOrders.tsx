@@ -365,7 +365,7 @@ const MyOrders: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>CPP ($) *</label>
+                  <label>CPP (KSh) *</label>
                   <input
                     type="number"
                     step="0.01"

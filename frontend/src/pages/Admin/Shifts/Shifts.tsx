@@ -456,7 +456,7 @@ const Shifts: React.FC = () => {
                     <span className="orders-count">{shift.ordersCompleted || 0}</span>
                   </td>
                   <td>
-                    <span className="revenue">${(shift.totalRevenue || 0).toLocaleString()}</span>
+                    <span className="revenue">KSh {(shift.totalRevenue || 0).toLocaleString()}</span>
                   </td>
                 </tr>
               ))

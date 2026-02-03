@@ -199,7 +199,7 @@ const Analytics: React.FC = () => {
               <XAxis dataKey="week" stroke="#94a3b8" />
               <YAxis stroke="#94a3b8" />
               <Tooltip 
-                formatter={(value) => [`$${value}`, 'Earnings']}
+                formatter={(value) => [`KSh ${value}`, 'Earnings']}
                 contentStyle={{ 
                   background: 'white', 
                   border: 'none', 

@@ -131,13 +131,13 @@ const SubmitWorkForm: React.FC<SubmitWorkFormProps> = ({
           </span>
         )}
         <span className="input-hint">
-          Order requires {orderPages} pages. Rate: ${cpp.toFixed(2)}/page
+          Order requires {orderPages} pages. Rate: KSh {cpp.toFixed(2)}/page
         </span>
       </div>
 
       <div className="earnings-preview">
         <span className="earnings-label">Estimated Earnings</span>
-        <span className="earnings-value">${estimatedEarnings.toFixed(2)}</span>
+        <span className="earnings-value">KSh {estimatedEarnings.toFixed(2)}</span>
       </div>
 
       <div className="form-group">
