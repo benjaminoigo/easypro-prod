@@ -53,7 +53,7 @@ const Login: React.FC = () => {
             <div className="branding-logo-icon">
               <Zap />
             </div>
-            <span className="branding-logo-text">Easy<span>Pro</span></span>
+            <span className="branding-logo-text">Writer<span>Street</span></span>
           </div>
           
           <div className="dashboard-preview">

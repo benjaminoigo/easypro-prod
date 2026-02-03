@@ -59,7 +59,7 @@ const WriterLayout: React.FC = () => {
             <div className="writer-sidebar-logo-icon">
               <Zap />
             </div>
-            <span className="writer-sidebar-logo-text">Easy<span>Pro</span></span>
+            <span className="writer-sidebar-logo-text">Writer<span>Street</span></span>
           </div>
           <button className="writer-sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
             <X />

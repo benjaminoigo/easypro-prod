@@ -63,7 +63,7 @@ const AdminLayout: React.FC = () => {
             <div className="sidebar-logo-icon">
               <Zap />
             </div>
-            <span className="sidebar-logo-text">Easy<span>Pro</span></span>
+            <span className="sidebar-logo-text">Writer<span>Street</span></span>
           </div>
           <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
             <X />
