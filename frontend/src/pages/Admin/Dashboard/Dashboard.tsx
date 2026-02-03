@@ -20,9 +20,22 @@ interface DashboardStats {
   totalWriters: number;
   activeOrders: number;
   completedOrders: number;
+  completedThisMonth: number;
   totalRevenue: number;
   pendingPayments: number;
   onlineWriters: number;
+  growthRate: number;
+}
+
+interface WeeklyOrderData {
+  day: string;
+  orders: number;
+}
+
+interface OrderStatusData {
+  name: string;
+  value: number;
+  color: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -30,31 +43,18 @@ const Dashboard: React.FC = () => {
     totalWriters: 0,
     activeOrders: 0,
     completedOrders: 0,
+    completedThisMonth: 0,
     totalRevenue: 0,
     pendingPayments: 0,
     onlineWriters: 0,
+    growthRate: 0,
   });
   
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [pendingUsers, setPendingUsers] = useState<User[]>([]);
+  const [weeklyOrders, setWeeklyOrders] = useState<WeeklyOrderData[]>([]);
+  const [orderStatus, setOrderStatus] = useState<OrderStatusData[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const weeklyOrders = [
-    { day: 'Mon', orders: 12 },
-    { day: 'Tue', orders: 19 },
-    { day: 'Wed', orders: 8 },
-    { day: 'Thu', orders: 15 },
-    { day: 'Fri', orders: 22 },
-    { day: 'Sat', orders: 18 },
-    { day: 'Sun', orders: 9 },
-  ];
-
-  const orderStatus = [
-    { name: 'Completed', value: 45, color: '#10B981' },
-    { name: 'In Progress', value: 30, color: '#3B82F6' },
-    { name: 'Pending', value: 15, color: '#F59E0B' },
-    { name: 'Overdue', value: 10, color: '#EF4444' },
-  ];
 
   useEffect(() => {
     fetchDashboardData();
@@ -62,22 +62,28 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [ordersRes, usersRes] = await Promise.all([
-        api.get('/orders?limit=5'),
+      const [dashboardRes, usersRes] = await Promise.all([
+        api.get('/analytics/admin-dashboard'),
         api.get('/users?status=pending'),
       ]);
 
-      setRecentOrders(ordersRes.data);
-      setPendingUsers(usersRes.data);
+      const { overview, recentActivity, charts } = dashboardRes.data;
 
       setStats({
-        totalWriters: 25,
-        activeOrders: 18,
-        completedOrders: 142,
-        totalRevenue: 45280,
-        pendingPayments: 2840,
-        onlineWriters: 12,
+        totalWriters: overview.totalWriters || 0,
+        activeOrders: overview.activeOrders || 0,
+        completedOrders: overview.completedOrders || 0,
+        completedThisMonth: overview.completedThisMonth || 0,
+        totalRevenue: overview.totalRevenue || 0,
+        pendingPayments: overview.totalPayableAmount || 0,
+        onlineWriters: overview.onlineWriters || 0,
+        growthRate: overview.growthRate || 0,
       });
+
+      setRecentOrders(recentActivity.recentOrders || []);
+      setWeeklyOrders(charts.weeklyOrders || []);
+      setOrderStatus(charts.orderStatusDistribution || []);
+      setPendingUsers(usersRes.data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast.error('Failed to load dashboard data');
@@ -156,7 +162,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           <div className="admin-stat-footer">
-            {stats.completedOrders} completed this month
+            {stats.completedThisMonth} completed this month
           </div>
         </div>
 
@@ -182,11 +188,11 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="admin-stat-info">
               <p className="admin-stat-label">Growth Rate</p>
-              <p className="admin-stat-value">+12.5%</p>
+              <p className="admin-stat-value">{stats.growthRate >= 0 ? '+' : ''}{stats.growthRate}%</p>
             </div>
           </div>
           <div className="admin-stat-footer">
-            <TrendingUp size={14} />&nbsp;<span className="positive">vs last month</span>
+            <TrendingUp size={14} />&nbsp;<span className={stats.growthRate >= 0 ? 'positive' : 'negative'}>vs last month</span>
           </div>
         </div>
       </div>

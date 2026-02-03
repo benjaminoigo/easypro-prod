@@ -32,6 +32,10 @@ export class AnalyticsService {
       recentOrders,
       pendingSubmissions,
       pendingPayments,
+      weeklyOrders,
+      orderStatusDistribution,
+      onlineWriters,
+      growthRate,
     ] = await Promise.all([
       this.getTotalUsers(),
       this.getTotalWriters(),
@@ -41,12 +45,18 @@ export class AnalyticsService {
       this.getRecentOrders(5),
       this.getPendingSubmissions(5),
       this.getPendingPayments(5),
+      this.getWeeklyOrders(),
+      this.getOrderStatusDistribution(),
+      this.getOnlineWriters(),
+      this.getGrowthRate(),
     ]);
 
     return {
       overview: {
         totalUsers,
         totalWriters,
+        onlineWriters,
+        growthRate,
         ...orderStats,
         ...submissionStats,
         ...paymentStats,
@@ -55,6 +65,10 @@ export class AnalyticsService {
         recentOrders,
         pendingSubmissions,
         pendingPayments,
+      },
+      charts: {
+        weeklyOrders,
+        orderStatusDistribution,
       },
     };
   }
@@ -172,20 +186,29 @@ export class AnalyticsService {
   }
 
   private async getOrderStats(): Promise<any> {
+    const now = new Date();
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
     const stats = await this.orderRepository
       .createQueryBuilder('order')
       .select([
         'COUNT(*) as totalOrders',
         'COUNT(CASE WHEN status = :completed THEN 1 END) as completedOrders',
-        'SUM(CASE WHEN status = :completed THEN order."totalAmount" ELSE 0 END) as totalCompleted',
+        'COUNT(CASE WHEN status IN (:...activeStatuses) THEN 1 END) as activeOrders',
+        'SUM(CASE WHEN status = :completed THEN order."totalAmount" ELSE 0 END) as totalRevenue',
+        'COUNT(CASE WHEN status = :completed AND order.createdAt >= :thisMonthStart THEN 1 END) as completedThisMonth',
       ])
       .setParameter('completed', OrderStatus.SUBMITTED)
+      .setParameter('activeStatuses', [OrderStatus.IN_PROGRESS, OrderStatus.PENDING, OrderStatus.AVAILABLE])
+      .setParameter('thisMonthStart', thisMonthStart)
       .getRawOne();
 
     return {
       totalOrders: parseInt(stats.totalOrders || '0'),
       completedOrders: parseInt(stats.completedOrders || '0'),
-      totalCompletedAmount: parseFloat(stats.totalCompleted) || 0,
+      activeOrders: parseInt(stats.activeOrders || '0'),
+      totalRevenue: parseFloat(stats.totalRevenue) || 0,
+      completedThisMonth: parseInt(stats.completedThisMonth || '0'),
     };
   }
 
@@ -303,5 +326,111 @@ export class AnalyticsService {
       earnings: parseFloat(earning.earnings) || 0,
       pages: parseInt(earning.pages) || 0,
     }));
+  }
+
+  private async getWeeklyOrders(): Promise<any[]> {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Start from Sunday
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .select([
+        'EXTRACT(DOW FROM order.createdAt) as dayOfWeek',
+        'COUNT(*) as count',
+      ])
+      .where('order.createdAt >= :startOfWeek', { startOfWeek })
+      .groupBy('EXTRACT(DOW FROM order.createdAt)')
+      .getRawMany();
+
+    // Create a map for quick lookup
+    const orderMap = new Map<number, number>();
+    orders.forEach(o => {
+      orderMap.set(parseInt(o.dayofweek), parseInt(o.count));
+    });
+
+    // Return data for Mon-Sun (reorder from Sun start)
+    return [1, 2, 3, 4, 5, 6, 0].map(dayNum => ({
+      day: days[dayNum],
+      orders: orderMap.get(dayNum) || 0,
+    }));
+  }
+
+  private async getOrderStatusDistribution(): Promise<any[]> {
+    const stats = await this.orderRepository
+      .createQueryBuilder('order')
+      .select([
+        'order.status as status',
+        'COUNT(*) as count',
+      ])
+      .groupBy('order.status')
+      .getRawMany();
+
+    const statusColors: Record<string, string> = {
+      [OrderStatus.SUBMITTED]: '#10B981', // Completed - Green
+      [OrderStatus.IN_PROGRESS]: '#3B82F6', // In Progress - Blue
+      [OrderStatus.PENDING]: '#F59E0B', // Pending - Yellow
+      [OrderStatus.AVAILABLE]: '#8B5CF6', // Available - Purple
+      [OrderStatus.CANCELLED]: '#EF4444', // Cancelled - Red
+    };
+
+    const statusLabels: Record<string, string> = {
+      [OrderStatus.SUBMITTED]: 'Completed',
+      [OrderStatus.IN_PROGRESS]: 'In Progress',
+      [OrderStatus.PENDING]: 'Pending',
+      [OrderStatus.AVAILABLE]: 'Available',
+      [OrderStatus.CANCELLED]: 'Cancelled',
+    };
+
+    return stats.map(s => ({
+      name: statusLabels[s.status] || s.status,
+      value: parseInt(s.count),
+      color: statusColors[s.status] || '#94A3B8',
+    }));
+  }
+
+  private async getOnlineWriters(): Promise<number> {
+    // Count writers who have submitted work today (considered active/online)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const count = await this.submissionRepository
+      .createQueryBuilder('submission')
+      .select('COUNT(DISTINCT submission.writerId)', 'count')
+      .where('submission.createdAt >= :today', { today })
+      .getRawOne();
+
+    return parseInt(count?.count) || 0;
+  }
+
+  private async getGrowthRate(): Promise<number> {
+    const now = new Date();
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    const [thisMonthRevenue, lastMonthRevenue] = await Promise.all([
+      this.orderRepository
+        .createQueryBuilder('order')
+        .select('SUM(order."totalAmount")', 'total')
+        .where('order.status = :status', { status: OrderStatus.SUBMITTED })
+        .andWhere('order.createdAt >= :start', { start: thisMonthStart })
+        .getRawOne(),
+      this.orderRepository
+        .createQueryBuilder('order')
+        .select('SUM(order."totalAmount")', 'total')
+        .where('order.status = :status', { status: OrderStatus.SUBMITTED })
+        .andWhere('order.createdAt >= :start', { start: lastMonthStart })
+        .andWhere('order.createdAt <= :end', { end: lastMonthEnd })
+        .getRawOne(),
+    ]);
+
+    const thisMonth = parseFloat(thisMonthRevenue?.total) || 0;
+    const lastMonth = parseFloat(lastMonthRevenue?.total) || 0;
+
+    if (lastMonth === 0) return thisMonth > 0 ? 100 : 0;
+    return Math.round(((thisMonth - lastMonth) / lastMonth) * 100 * 10) / 10;
   }
 }
