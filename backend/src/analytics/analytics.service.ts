@@ -199,7 +199,7 @@ export class AnalyticsService {
         'COUNT(CASE WHEN status = :completed AND order.createdAt >= :thisMonthStart THEN 1 END) as completedThisMonth',
       ])
       .setParameter('completed', OrderStatus.SUBMITTED)
-      .setParameter('activeStatuses', [OrderStatus.IN_PROGRESS, OrderStatus.PENDING, OrderStatus.AVAILABLE])
+      .setParameter('activeStatuses', [OrderStatus.ASSIGNED, OrderStatus.IN_PROGRESS])
       .setParameter('thisMonthStart', thisMonthStart)
       .getRawOne();
 
@@ -371,16 +371,14 @@ export class AnalyticsService {
     const statusColors: Record<string, string> = {
       [OrderStatus.SUBMITTED]: '#10B981', // Completed - Green
       [OrderStatus.IN_PROGRESS]: '#3B82F6', // In Progress - Blue
-      [OrderStatus.PENDING]: '#F59E0B', // Pending - Yellow
-      [OrderStatus.AVAILABLE]: '#8B5CF6', // Available - Purple
+      [OrderStatus.ASSIGNED]: '#F59E0B', // Assigned - Yellow
       [OrderStatus.CANCELLED]: '#EF4444', // Cancelled - Red
     };
 
     const statusLabels: Record<string, string> = {
       [OrderStatus.SUBMITTED]: 'Completed',
       [OrderStatus.IN_PROGRESS]: 'In Progress',
-      [OrderStatus.PENDING]: 'Pending',
-      [OrderStatus.AVAILABLE]: 'Available',
+      [OrderStatus.ASSIGNED]: 'Assigned',
       [OrderStatus.CANCELLED]: 'Cancelled',
     };
 
