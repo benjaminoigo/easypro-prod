@@ -26,6 +26,14 @@ interface WriterStats {
   totalEarnings: number;
   pendingPayments: number;
   currentBalance: number;
+  currentShiftPages: number;
+  currentShiftOrders: number;
+  maxPagesPerShift: number;
+  hasReachedLimit: boolean;
+  remainingPages: number;
+  shiftActive: boolean;
+  shiftStart: string | null;
+  shiftEnd: string | null;
 }
 
 const Dashboard: React.FC = () => {
@@ -36,6 +44,14 @@ const Dashboard: React.FC = () => {
     totalEarnings: 0,
     pendingPayments: 0,
     currentBalance: 0,
+    currentShiftPages: 0,
+    currentShiftOrders: 0,
+    maxPagesPerShift: 20,
+    hasReachedLimit: false,
+    remainingPages: 20,
+    shiftActive: false,
+    shiftStart: null,
+    shiftEnd: null,
   });
   
   const [assignedOrders, setAssignedOrders] = useState<Order[]>([]);
@@ -43,24 +59,60 @@ const Dashboard: React.FC = () => {
   const [writerProfile, setWriterProfile] = useState<Writer | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const weeklyEarnings = [
-    { day: 'Mon', earnings: 120 },
-    { day: 'Tue', earnings: 180 },
-    { day: 'Wed', earnings: 95 },
-    { day: 'Thu', earnings: 210 },
-    { day: 'Fri', earnings: 165 },
-    { day: 'Sat', earnings: 145 },
-    { day: 'Sun', earnings: 75 },
-  ];
+  // Calculate weekly earnings from recent submissions
+  const getWeeklyEarnings = () => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const today = new Date();
+    const weekData = days.map((day, index) => ({
+      day,
+      earnings: 0,
+    }));
 
-  const monthlyOrders = [
-    { month: 'Jan', orders: 8 },
-    { month: 'Feb', orders: 12 },
-    { month: 'Mar', orders: 10 },
-    { month: 'Apr', orders: 15 },
-    { month: 'May', orders: 18 },
-    { month: 'Jun', orders: 22 },
-  ];
+    recentSubmissions.forEach((sub: any) => {
+      const subDate = new Date(sub.createdAt);
+      const daysDiff = Math.floor((today.getTime() - subDate.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysDiff < 7) {
+        const dayIndex = subDate.getDay();
+        weekData[dayIndex].earnings += Number(sub.amount) || 0;
+      }
+    });
+
+    // Reorder to start from Monday
+    return [...weekData.slice(1), weekData[0]];
+  };
+
+  // Calculate monthly orders from order history
+  const getMonthlyOrders = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    
+    // Get last 6 months
+    const monthData: { month: string; orders: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 12) % 12;
+      monthData.push({
+        month: months[monthIndex],
+        orders: 0,
+      });
+    }
+
+    assignedOrders.forEach((order: any) => {
+      const orderDate = new Date(order.createdAt);
+      const monthsDiff = (today.getFullYear() - orderDate.getFullYear()) * 12 + (today.getMonth() - orderDate.getMonth());
+      if (monthsDiff >= 0 && monthsDiff < 6) {
+        const dataIndex = 5 - monthsDiff;
+        if (dataIndex >= 0) {
+          monthData[dataIndex].orders++;
+        }
+      }
+    });
+
+    return monthData;
+  };
+
+  const weeklyEarnings = getWeeklyEarnings();
+  const monthlyOrders = getMonthlyOrders();
 
   useEffect(() => {
     fetchDashboardData();
@@ -86,6 +138,14 @@ const Dashboard: React.FC = () => {
           totalEarnings: profileRes.data.totalEarnings || 0,
           pendingPayments: profileRes.data.pendingPayments || 0,
           currentBalance: profileRes.data.currentBalance || 0,
+          currentShiftPages: profileRes.data.currentShiftPages || 0,
+          currentShiftOrders: profileRes.data.currentShiftOrders || 0,
+          maxPagesPerShift: profileRes.data.maxPagesPerShift || 20,
+          hasReachedLimit: profileRes.data.hasReachedLimit || false,
+          remainingPages: profileRes.data.remainingPages || 20,
+          shiftActive: profileRes.data.shiftActive || false,
+          shiftStart: profileRes.data.shiftStart || null,
+          shiftEnd: profileRes.data.shiftEnd || null,
         });
       }
     } catch (error) {

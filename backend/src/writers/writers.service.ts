@@ -5,6 +5,9 @@ import { Writer, WriterStatus } from './writer.entity';
 import { WriterStatusLog, StatusAction } from './writer-status-log.entity';
 import { User } from '../users/user.entity';
 import { UpdateWriterStatusDto } from './dto/update-writer-status.dto';
+import { Order, OrderStatus } from '../orders/order.entity';
+import { Submission, SubmissionStatus } from '../submissions/submission.entity';
+import { Shift } from '../shifts/shift.entity';
 
 @Injectable()
 export class WritersService {
@@ -15,6 +18,12 @@ export class WritersService {
     private readonly statusLogRepository: Repository<WriterStatusLog>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Submission)
+    private readonly submissionRepository: Repository<Submission>,
+    @InjectRepository(Shift)
+    private readonly shiftRepository: Repository<Shift>,
   ) {}
 
   async findAll(): Promise<Writer[]> {
@@ -37,7 +46,7 @@ export class WritersService {
     return writer;
   }
 
-  async findByUserId(userId: string): Promise<Writer> {
+  async findByUserId(userId: string): Promise<any> {
     const writer = await this.writerRepository.findOne({
       where: { userId },
       relations: ['user'],
@@ -47,7 +56,65 @@ export class WritersService {
       throw new NotFoundException('Writer profile not found');
     }
 
-    return writer;
+    // Get current shift
+    const now = new Date();
+    const currentShift = await this.shiftRepository
+      .createQueryBuilder('shift')
+      .where('shift.startTime <= :now', { now })
+      .andWhere('shift.endTime > :now', { now })
+      .andWhere('shift.isActive = true')
+      .getOne();
+
+    const maxPagesPerShift = currentShift?.maxPagesPerShift || 20;
+
+    // Get assigned orders for this shift (pages assigned in current shift)
+    const shiftStart = currentShift?.startTime || new Date();
+    const assignedOrders = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.pages)', 'totalPages')
+      .addSelect('COUNT(*)', 'totalOrders')
+      .where('order.writerId = :writerId', { writerId: writer.id })
+      .andWhere('order.createdAt >= :shiftStart', { shiftStart })
+      .andWhere('order.status != :cancelled', { cancelled: OrderStatus.CANCELLED })
+      .getRawOne();
+
+    const currentShiftAssignedPages = parseFloat(assignedOrders?.totalPages) || 0;
+    const currentShiftAssignedOrders = parseInt(assignedOrders?.totalOrders) || 0;
+
+    // Get total statistics
+    const totalOrders = await this.orderRepository.count({
+      where: { writerId: writer.id },
+    });
+
+    const completedOrders = await this.orderRepository.count({
+      where: { writerId: writer.id, status: OrderStatus.SUBMITTED },
+    });
+
+    // Check if writer has reached the limit
+    const hasReachedLimit = currentShiftAssignedPages >= maxPagesPerShift;
+    const remainingPages = Math.max(maxPagesPerShift - currentShiftAssignedPages, 0);
+
+    return {
+      ...writer,
+      totalOrders,
+      completedOrders,
+      totalEarnings: writer.lifetimeEarnings,
+      currentBalance: writer.balanceUSD,
+      pendingPayments: 0, // TODO: calculate from pending payments
+      averageRating: 4.5, // TODO: implement rating system
+      
+      // Shift tracking
+      currentShiftPages: currentShiftAssignedPages,
+      currentShiftOrders: currentShiftAssignedOrders,
+      maxPagesPerShift,
+      hasReachedLimit,
+      remainingPages,
+      
+      // Shift info
+      shiftActive: !!currentShift,
+      shiftStart: currentShift?.startTime,
+      shiftEnd: currentShift?.endTime,
+    };
   }
 
   async updateStatus(

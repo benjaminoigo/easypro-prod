@@ -28,6 +28,14 @@ interface NewOrderForm {
   instructions: string;
 }
 
+interface WriterLimits {
+  currentShiftPages: number;
+  currentShiftOrders: number;
+  maxPagesPerShift: number;
+  hasReachedLimit: boolean;
+  remainingPages: number;
+}
+
 const MyOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +46,13 @@ const MyOrders: React.FC = () => {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [writerLimits, setWriterLimits] = useState<WriterLimits>({
+    currentShiftPages: 0,
+    currentShiftOrders: 0,
+    maxPagesPerShift: 20,
+    hasReachedLimit: false,
+    remainingPages: 20,
+  });
   const [newOrder, setNewOrder] = useState<NewOrderForm>({
     orderNumber: '',
     subject: '',
@@ -53,8 +68,21 @@ const MyOrders: React.FC = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await api.get('/orders/my-orders');
-      setOrders(response.data);
+      const [ordersRes, profileRes] = await Promise.all([
+        api.get('/orders/my-orders'),
+        api.get('/writers/me'),
+      ]);
+      setOrders(ordersRes.data);
+      
+      if (profileRes.data) {
+        setWriterLimits({
+          currentShiftPages: profileRes.data.currentShiftPages || 0,
+          currentShiftOrders: profileRes.data.currentShiftOrders || 0,
+          maxPagesPerShift: profileRes.data.maxPagesPerShift || 20,
+          hasReachedLimit: profileRes.data.hasReachedLimit || false,
+          remainingPages: profileRes.data.remainingPages || 20,
+        });
+      }
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error('Failed to load orders');
@@ -67,6 +95,12 @@ const MyOrders: React.FC = () => {
     e.preventDefault();
     if (!newOrder.subject || !newOrder.deadline || !newOrder.pages) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    // Check if adding this order would exceed the limit
+    if (writerLimits.currentShiftPages + newOrder.pages > writerLimits.maxPagesPerShift) {
+      toast.error(`Cannot add order: Would exceed your shift limit of ${writerLimits.maxPagesPerShift} pages. You have ${writerLimits.remainingPages} pages remaining.`);
       return;
     }
 
@@ -205,6 +239,30 @@ const MyOrders: React.FC = () => {
 
   return (
     <div className="my-orders-page">
+      {/* Shift Limit Tracker */}
+      <div className={`shift-limit-tracker ${writerLimits.hasReachedLimit ? 'at-limit' : writerLimits.currentShiftPages >= writerLimits.maxPagesPerShift * 0.8 ? 'near-limit' : ''}`}>
+        <div className="limit-info">
+          <span className="limit-label">Shift Progress:</span>
+          <span className="limit-value">
+            #{writerLimits.currentShiftOrders}/{writerLimits.maxPagesPerShift} limit
+          </span>
+          <span className="pages-info">
+            ({writerLimits.currentShiftPages} / {writerLimits.maxPagesPerShift} pages)
+          </span>
+        </div>
+        <div className="limit-bar">
+          <div 
+            className="limit-fill" 
+            style={{ width: `${Math.min((writerLimits.currentShiftPages / writerLimits.maxPagesPerShift) * 100, 100)}%` }}
+          />
+        </div>
+        {writerLimits.hasReachedLimit && (
+          <div className="limit-warning">
+            ⚠️ You've reached your shift limit! Cannot register new orders.
+          </div>
+        )}
+      </div>
+
       {/* Header */}
       <div className="page-header">
         <div className="header-actions">
@@ -218,7 +276,12 @@ const MyOrders: React.FC = () => {
               {orders.filter(o => getOrderPriority(o.deadline) === 'high').length} urgent
             </span>
           </div>
-          <button className="btn-primary add-order-btn" onClick={() => setShowAddModal(true)}>
+          <button 
+            className={`btn-primary add-order-btn ${writerLimits.hasReachedLimit ? 'disabled' : ''}`}
+            onClick={() => !writerLimits.hasReachedLimit && setShowAddModal(true)}
+            disabled={writerLimits.hasReachedLimit}
+            title={writerLimits.hasReachedLimit ? 'You have reached your shift limit' : 'Register a new order'}
+          >
             <Plus />
             Register Order
           </button>
@@ -358,11 +421,17 @@ const MyOrders: React.FC = () => {
                   <label>Pages *</label>
                   <input
                     type="number"
-                    min="1"
+                    min="0.1"
+                    step="0.1"
                     value={newOrder.pages}
-                    onChange={(e) => setNewOrder({ ...newOrder, pages: parseInt(e.target.value) || 1 })}
+                    onChange={(e) => setNewOrder({ ...newOrder, pages: parseFloat(e.target.value) || 1 })}
                     required
                   />
+                  {writerLimits.remainingPages < newOrder.pages && (
+                    <span className="warning-text">
+                      ⚠️ Exceeds remaining pages ({writerLimits.remainingPages})
+                    </span>
+                  )}
                 </div>
                 <div className="form-group">
                   <label>CPP (KSh) *</label>

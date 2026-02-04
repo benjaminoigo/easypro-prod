@@ -481,9 +481,10 @@ const Orders: React.FC = () => {
                   <label>Pages *</label>
                   <input
                     type="number"
-                    min="1"
+                    min="0.1"
+                    step="0.1"
                     value={formData.pages}
-                    onChange={(e) => setFormData({ ...formData, pages: parseInt(e.target.value) || 1 })}
+                    onChange={(e) => setFormData({ ...formData, pages: parseFloat(e.target.value) || 1 })}
                     required
                   />
                 </div>

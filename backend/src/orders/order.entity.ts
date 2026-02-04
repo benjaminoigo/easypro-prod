@@ -40,7 +40,7 @@ export class Order {
   @Column()
   deadline: Date;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'decimal', precision: 5, scale: 1, default: 1 })
   pages: number;
 
   @Column({
