@@ -85,6 +85,7 @@ export class UsersService {
     }
 
     user.password = await bcrypt.hash(dto.newPassword, 12);
+    user.tokenVersion = (user.tokenVersion ?? 0) + 1;
     await this.userRepository.save(user);
   }
 }

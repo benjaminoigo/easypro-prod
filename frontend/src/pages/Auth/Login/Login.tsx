@@ -29,6 +29,11 @@ const Login: React.FC = () => {
     setIsLoading(true);
     setError('');
     try {
+      if (/^\d{6}$/.test(data.password)) {
+        toast.info('OTP detected. Redirecting to reset password.');
+        navigate(`/reset-password?email=${encodeURIComponent(data.email)}`);
+        return;
+      }
       const response = await login(data.email, data.password);
       toast.success('Login successful!');
       const redirectTo = searchParams.get('redirect') || 

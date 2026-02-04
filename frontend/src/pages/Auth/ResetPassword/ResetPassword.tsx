@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, KeyRound, AlertCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
 import api from '../../../services/api';
@@ -7,8 +7,10 @@ import './ResetPassword.css';
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const prefillEmail = searchParams.get('email') || '';
   const [form, setForm] = useState({
-    email: '',
+    email: prefillEmail,
     otp: '',
     newPassword: '',
     confirmPassword: '',

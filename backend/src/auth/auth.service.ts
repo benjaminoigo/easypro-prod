@@ -65,6 +65,7 @@ export class AuthService {
       role: user.role,
       firstName: user.firstName,
       lastName: user.lastName,
+      tokenVersion: user.tokenVersion ?? 0,
     };
 
     return {
@@ -241,6 +242,7 @@ export class AuthService {
     }
 
     user.password = await bcrypt.hash(dto.newPassword, 12);
+    user.tokenVersion = (user.tokenVersion ?? 0) + 1;
     user.resetOtpHash = null;
     user.resetOtpExpiry = null;
     await this.userRepository.save(user);

@@ -50,6 +50,9 @@ export class User {
   @Column({ default: false })
   isApproved: boolean;
 
+  @Column({ default: 0, name: 'token_version' })
+  tokenVersion: number;
+
   @Column({ nullable: true, name: 'invite_token' })
   inviteToken?: string;
 
