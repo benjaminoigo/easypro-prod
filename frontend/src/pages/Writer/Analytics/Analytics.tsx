@@ -74,7 +74,18 @@ const Analytics: React.FC = () => {
   const fetchAnalytics = useCallback(async () => {
     try {
       const response = await api.get(`/analytics/my-analytics?range=${dateRange}`);
-      setAnalytics(response.data);
+      const profile = response.data?.profile || {};
+      const totalOrdersCompleted = Number(profile.totalOrdersCompleted) || 0;
+      const completionRate = totalOrdersCompleted > 0 ? 100 : 0;
+
+      setAnalytics({
+        totalEarnings: Number(profile.lifetimeEarnings) || 0,
+        totalOrders: totalOrdersCompleted,
+        completionRate,
+        averageRating: Number(profile.averageRating) || 0,
+        earningsGrowth: 0,
+        ordersGrowth: 0,
+      });
     } catch (error) {
       console.error('Error fetching analytics:', error);
       // Set mock data for demo
@@ -130,7 +141,7 @@ const Analytics: React.FC = () => {
           </div>
           <div className="stat-content">
             <span className="stat-label">Total Earnings</span>
-            <span className="stat-value">{formatUSD(analytics.totalEarnings)}</span>
+            <span className="stat-value">{formatUSD(analytics.totalEarnings || 0)}</span>
             <span className={`stat-change ${analytics.earningsGrowth >= 0 ? 'positive' : 'negative'}`}>
               {analytics.earningsGrowth >= 0 ? <TrendingUp /> : <TrendingDown />}
               {Math.abs(analytics.earningsGrowth)}% vs last period
@@ -144,7 +155,7 @@ const Analytics: React.FC = () => {
           </div>
           <div className="stat-content">
             <span className="stat-label">Completed Orders</span>
-            <span className="stat-value">{analytics.totalOrders}</span>
+            <span className="stat-value">{analytics.totalOrders || 0}</span>
             <span className={`stat-change ${analytics.ordersGrowth >= 0 ? 'positive' : 'negative'}`}>
               {analytics.ordersGrowth >= 0 ? <TrendingUp /> : <TrendingDown />}
               {Math.abs(analytics.ordersGrowth)}% vs last period
@@ -158,7 +169,7 @@ const Analytics: React.FC = () => {
           </div>
           <div className="stat-content">
             <span className="stat-label">Completion Rate</span>
-            <span className="stat-value">{analytics.completionRate}%</span>
+            <span className="stat-value">{analytics.completionRate || 0}%</span>
             <span className="stat-change positive">
               <TrendingUp />
               +2% vs last period
@@ -172,7 +183,7 @@ const Analytics: React.FC = () => {
           </div>
           <div className="stat-content">
             <span className="stat-label">Average Rating</span>
-            <span className="stat-value">{analytics.averageRating.toFixed(1)}</span>
+            <span className="stat-value">{(analytics.averageRating || 0).toFixed(1)}</span>
             <span className="stat-change positive">
               <TrendingUp />
               +0.2 vs last period
