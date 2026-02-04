@@ -60,22 +60,7 @@ export class SubmissionsService {
     const currentShift = await this.getCurrentShift();
 
     // Validate pages don't exceed remaining pages
-    const submittedPages = await this.getSubmittedPagesForOrder(order.id);
-    const remainingPages = order.pages - submittedPages;
-
-    if (createSubmissionDto.pagesWorked > remainingPages) {
-      throw new BadRequestException(
-        `Cannot submit ${createSubmissionDto.pagesWorked} pages. Only ${remainingPages} pages remaining.`,
-      );
-    }
-
-    // Check shift page limit
-    const writerShiftPages = writer.currentShiftPages + createSubmissionDto.pagesWorked;
-    if (writerShiftPages > currentShift.maxPagesPerShift) {
-      throw new BadRequestException(
-        `Submission would exceed shift page limit. Current: ${writer.currentShiftPages}, Limit: ${currentShift.maxPagesPerShift}`,
-      );
-    }
+    // Removed order and shift page limit checks to allow submitting more than the limit
 
     // Calculate amount
     const amount = createSubmissionDto.pagesWorked * createSubmissionDto.cpp;
