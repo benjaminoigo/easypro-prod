@@ -4,6 +4,7 @@ import { Repository, FindManyOptions } from 'typeorm';
 import { Order, OrderStatus, CancellationConsequence } from './order.entity';
 import { Writer, WriterStatus } from '../writers/writer.entity';
 import { WriterStatusLog, StatusAction } from '../writers/writer-status-log.entity';
+import { Submission } from '../submissions/submission.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CancelOrderDto } from './dto/cancel-order.dto';
@@ -17,6 +18,8 @@ export class OrdersService {
     private readonly writerRepository: Repository<Writer>,
     @InjectRepository(WriterStatusLog)
     private readonly statusLogRepository: Repository<WriterStatusLog>,
+    @InjectRepository(Submission)
+    private readonly submissionRepository: Repository<Submission>,
   ) {}
 
   async create(createOrderDto: CreateOrderDto, files?: Express.Multer.File[]): Promise<Order> {
@@ -174,6 +177,16 @@ export class OrdersService {
 
   async remove(id: string): Promise<void> {
     const order = await this.findOne(id);
+    const submissionsCount = await this.submissionRepository.count({
+      where: { orderId: order.id },
+    });
+
+    if (submissionsCount > 0) {
+      throw new BadRequestException(
+        'Cannot delete order with submissions. Cancel the order instead.',
+      );
+    }
+
     await this.orderRepository.remove(order);
   }
 

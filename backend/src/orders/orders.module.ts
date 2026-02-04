@@ -5,11 +5,12 @@ import { OrdersController } from './orders.controller';
 import { Order } from './order.entity';
 import { Writer } from '../writers/writer.entity';
 import { WriterStatusLog } from '../writers/writer-status-log.entity';
+import { Submission } from '../submissions/submission.entity';
 import { WritersModule } from '../writers/writers.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, Writer, WriterStatusLog]),
+    TypeOrmModule.forFeature([Order, Writer, WriterStatusLog, Submission]),
     WritersModule,
   ],
   providers: [OrdersService],
