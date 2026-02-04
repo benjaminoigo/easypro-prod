@@ -198,6 +198,15 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
+    if (user.role === UserRole.WRITER) {
+      const writer = await this.writerRepository.findOne({
+        where: { userId: user.id },
+      });
+      if (writer) {
+        await this.writerRepository.remove(writer);
+      }
+    }
+
     await this.userRepository.remove(user);
   }
 
