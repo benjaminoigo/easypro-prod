@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateOrderDto } from './create-order.dto';
-import { IsOptional, IsEnum, IsInt, IsNumber, Min } from 'class-validator';
+import { IsOptional, IsEnum, IsNumber, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { OrderStatus } from '../order.entity';
 
 export class UpdateOrderDto extends PartialType(CreateOrderDto) {
@@ -9,8 +10,9 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   status?: OrderStatus;
 
   @IsOptional()
-  @IsInt()
-  @Min(1)
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @Min(0.1)
   pages?: number;
 
   @IsOptional()

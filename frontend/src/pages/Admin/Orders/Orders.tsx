@@ -60,7 +60,7 @@ const Orders: React.FC = () => {
     pages: 1,
     cpp: 3.00,
     writerId: '',
-    status: 'pending',
+    status: 'assigned',
   });
 
   useEffect(() => {
@@ -116,7 +116,7 @@ const Orders: React.FC = () => {
       pages: order.pages || 1,
       cpp: order.cpp || 3.00,
       writerId: order.writerId || '',
-      status: order.status || 'pending',
+      status: order.status || 'assigned',
     });
     setShowEditModal(true);
   };
@@ -129,7 +129,7 @@ const Orders: React.FC = () => {
       pages: 1,
       cpp: 3.00,
       writerId: '',
-      status: 'pending',
+      status: 'assigned',
     });
     setSelectedFiles([]);
     setShowCreateModal(true);
@@ -193,11 +193,11 @@ const Orders: React.FC = () => {
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'completed':
+      case 'submitted':
         return 'completed';
       case 'in_progress':
         return 'in-progress';
-      case 'pending':
+      case 'assigned':
         return 'pending';
       case 'cancelled':
         return 'cancelled';
@@ -243,16 +243,16 @@ const Orders: React.FC = () => {
           <span className="stat-label">Total Orders</span>
         </div>
         <div className="stat-item">
-          <span className="stat-value">{orders.filter(o => o.status === 'pending').length}</span>
-          <span className="stat-label">Pending</span>
+          <span className="stat-value">{orders.filter(o => o.status === 'assigned').length}</span>
+          <span className="stat-label">Assigned</span>
         </div>
         <div className="stat-item">
           <span className="stat-value">{orders.filter(o => o.status === 'in_progress').length}</span>
           <span className="stat-label">In Progress</span>
         </div>
         <div className="stat-item">
-          <span className="stat-value">{orders.filter(o => o.status === 'completed').length}</span>
-          <span className="stat-label">Completed</span>
+          <span className="stat-value">{orders.filter(o => o.status === 'submitted').length}</span>
+          <span className="stat-label">Submitted</span>
         </div>
       </div>
 
@@ -274,9 +274,9 @@ const Orders: React.FC = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
           >
             <option value="all">All Status</option>
-            <option value="pending">Pending</option>
+            <option value="assigned">Assigned</option>
             <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
+            <option value="submitted">Submitted</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
@@ -529,10 +529,9 @@ const Orders: React.FC = () => {
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   >
-                    <option value="pending">Pending</option>
                     <option value="assigned">Assigned</option>
                     <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
+                    <option value="submitted">Submitted</option>
                     <option value="cancelled">Cancelled</option>
                   </select>
                 </div>
