@@ -135,6 +135,13 @@ export class WritersService {
     writer.status = updateStatusDto.status;
     const updatedWriter = await this.writerRepository.save(writer);
 
+    // Invalidate existing tokens when status changes
+    const user = await this.userRepository.findOne({ where: { id: writer.userId } });
+    if (user) {
+      user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+      await this.userRepository.save(user);
+    }
+
     // Create status log
     const statusLog = this.statusLogRepository.create({
       writerId: writer.id,

@@ -5,7 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../../users/user.entity';
+import { User, UserRole } from '../../users/user.entity';
+import { Writer, WriterStatus } from '../../writers/writer.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -13,6 +14,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private configService: ConfigService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Writer)
+    private readonly writerRepository: Repository<Writer>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -32,6 +35,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if ((user.tokenVersion ?? 0) !== (payload.tokenVersion ?? 0)) {
       throw new UnauthorizedException('Token is no longer valid');
+    }
+
+    if (user.role === UserRole.WRITER) {
+      const writer = await this.writerRepository.findOne({
+        where: { userId: user.id },
+      });
+      if (writer?.status === WriterStatus.SUSPENDED) {
+        throw new UnauthorizedException('Writer account is suspended');
+      }
     }
 
     return {
