@@ -172,6 +172,11 @@ export class OrdersService {
     return savedOrder;
   }
 
+  async remove(id: string): Promise<void> {
+    const order = await this.findOne(id);
+    await this.orderRepository.remove(order);
+  }
+
   async getOrderStats(): Promise<any> {
     const stats = await this.orderRepository
       .createQueryBuilder('order')

@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Param,
   Body,
@@ -10,6 +11,7 @@ import {
   Query,
   UseInterceptors,
   UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -85,6 +87,12 @@ export class OrdersController {
   ) {
     // Writer registers an external order they picked up
     const writer = await this.writersService.findByUserId(user.id);
+    const pages = Number(createOrderDto.pages) || 0;
+    if (writer.currentShiftPages + pages > writer.maxPagesPerShift) {
+      throw new BadRequestException(
+        `Cannot add order: Would exceed your shift limit of ${writer.maxPagesPerShift} pages. You have ${writer.remainingPages} pages remaining.`,
+      );
+    }
     return this.ordersService.create({
       ...createOrderDto,
       writerId: writer.id,
@@ -136,6 +144,17 @@ export class OrdersController {
     return this.ordersService.update(id, updateOrderDto);
   }
 
+  @Patch(':id')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async patch(
+    @Param('id') id: string,
+    @Body() updateOrderDto: UpdateOrderDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.ordersService.update(id, updateOrderDto);
+  }
+
   @Put(':id/assign/:writerId')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
@@ -163,5 +182,12 @@ export class OrdersController {
     @CurrentUser() user: any,
   ) {
     return this.ordersService.cancelOrder(id, cancelDto, user.id);
+  }
+
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async remove(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.ordersService.remove(id);
   }
 }
