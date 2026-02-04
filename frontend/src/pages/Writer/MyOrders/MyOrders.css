@@ -802,6 +802,18 @@
   margin-top: 0.25rem;
 }
 
+.form-group .warning-text {
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 6px;
+  color: #92400e;
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
