@@ -33,6 +33,13 @@ interface WriterAnalytics {
   ordersGrowth: number;
 }
 
+interface MonthlyEarnings {
+  year: number;
+  month: number;
+  earnings: number;
+  pages: number;
+}
+
 const Analytics: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('30d');
@@ -44,32 +51,7 @@ const Analytics: React.FC = () => {
     earningsGrowth: 0,
     ordersGrowth: 0,
   });
-
-  // Sample data for charts
-  const earningsData = [
-    { week: 'Week 1', earnings: 450 },
-    { week: 'Week 2', earnings: 520 },
-    { week: 'Week 3', earnings: 380 },
-    { week: 'Week 4', earnings: 650 },
-  ];
-
-  const ordersData = [
-    { month: 'Jan', completed: 8, pending: 2 },
-    { month: 'Feb', completed: 12, pending: 3 },
-    { month: 'Mar', completed: 10, pending: 1 },
-    { month: 'Apr', completed: 15, pending: 2 },
-    { month: 'May', completed: 18, pending: 4 },
-    { month: 'Jun', completed: 20, pending: 3 },
-  ];
-
-  const ratingData = [
-    { month: 'Jan', rating: 4.2 },
-    { month: 'Feb', rating: 4.3 },
-    { month: 'Mar', rating: 4.5 },
-    { month: 'Apr', rating: 4.4 },
-    { month: 'May', rating: 4.6 },
-    { month: 'Jun', rating: 4.7 },
-  ];
+  const [monthlyEarnings, setMonthlyEarnings] = useState<MonthlyEarnings[]>([]);
 
   const fetchAnalytics = useCallback(async () => {
     try {
@@ -86,6 +68,7 @@ const Analytics: React.FC = () => {
         earningsGrowth: 0,
         ordersGrowth: 0,
       });
+      setMonthlyEarnings(response.data?.monthlyEarnings || []);
     } catch (error) {
       console.error('Error fetching analytics:', error);
       // Set mock data for demo
@@ -97,10 +80,40 @@ const Analytics: React.FC = () => {
         earningsGrowth: 15.5,
         ordersGrowth: 8.2,
       });
+      setMonthlyEarnings([]);
     } finally {
       setLoading(false);
     }
   }, [dateRange]);
+
+  const getLastMonths = (count: number) => {
+    const months: { year: number; month: number; label: string }[] = [];
+    const date = new Date();
+    for (let i = count - 1; i >= 0; i--) {
+      const d = new Date(date.getFullYear(), date.getMonth() - i, 1);
+      const label = d.toLocaleString('en-US', { month: 'short' });
+      months.push({ year: d.getFullYear(), month: d.getMonth() + 1, label });
+    }
+    return months;
+  };
+
+  const earningsMap = new Map(
+    monthlyEarnings.map((e) => [`${e.year}-${e.month}`, e])
+  );
+  const lastSixMonths = getLastMonths(6);
+  const earningsData = lastSixMonths.map((m) => ({
+    month: m.label,
+    earnings: earningsMap.get(`${m.year}-${m.month}`)?.earnings || 0,
+  }));
+  const ordersData = lastSixMonths.map((m) => ({
+    month: m.label,
+    completed: earningsMap.get(`${m.year}-${m.month}`)?.pages || 0,
+    pending: 0,
+  }));
+  const ratingData = lastSixMonths.map((m) => ({
+    month: m.label,
+    rating: Number(analytics.averageRating) || 0,
+  }));
 
   useEffect(() => {
     fetchAnalytics();
@@ -205,7 +218,7 @@ const Analytics: React.FC = () => {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="week" stroke="#94a3b8" />
+              <XAxis dataKey="month" stroke="#94a3b8" />
               <YAxis stroke="#94a3b8" />
               <Tooltip 
                 formatter={(value) => [`KSh ${value}`, 'Earnings']}
