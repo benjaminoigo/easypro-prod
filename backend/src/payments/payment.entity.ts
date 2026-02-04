@@ -9,6 +9,7 @@ import {
   Index,
 } from 'typeorm';
 import { Writer } from '../writers/writer.entity';
+import { numericTransformer } from '../common/transformers/numeric.transformer';
 
 export enum PaymentStatus {
   PENDING = 'pending',
@@ -36,6 +37,7 @@ export class Payment {
     type: 'decimal',
     precision: 10,
     scale: 2,
+    transformer: numericTransformer,
   })
   amount: number;
 

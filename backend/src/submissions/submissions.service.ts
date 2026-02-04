@@ -225,9 +225,12 @@ export class SubmissionsService {
     });
 
     if (writer) {
-      writer.balanceUSD = Number(writer.balanceUSD) + submission.amount;
-      writer.lifetimeEarnings = Number(writer.lifetimeEarnings) + submission.amount;
-      writer.totalPagesCompleted += submission.pagesWorked;
+      const amount = Number(submission.amount);
+      const pagesWorked = Number(submission.pagesWorked);
+
+      writer.balanceUSD = Number(writer.balanceUSD) + amount;
+      writer.lifetimeEarnings = Number(writer.lifetimeEarnings) + amount;
+      writer.totalPagesCompleted = Number(writer.totalPagesCompleted) + pagesWorked;
       writer.totalOrdersCompleted += 1;
       await this.writerRepository.save(writer);
     }

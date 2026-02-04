@@ -116,7 +116,8 @@ export class PaymentsService {
     });
 
     if (writer) {
-      writer.balanceUSD = Number(writer.balanceUSD) + payment.amount;
+      const amount = Number(payment.amount);
+      writer.balanceUSD = Number(writer.balanceUSD) + amount;
       await this.writerRepository.save(writer);
     }
 

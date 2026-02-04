@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Writer } from '../writers/writer.entity';
 import { Order } from '../orders/order.entity';
+import { numericTransformer } from '../common/transformers/numeric.transformer';
 
 export enum SubmissionStatus {
   PENDING = 'pending',
@@ -30,13 +31,21 @@ export class Submission {
   @Index()
   writerId: string;
 
-  @Column({ type: 'decimal', precision: 5, scale: 1, name: 'pages_worked', default: 1 })
+  @Column({
+    type: 'decimal',
+    precision: 5,
+    scale: 1,
+    name: 'pages_worked',
+    default: 1,
+    transformer: numericTransformer,
+  })
   pagesWorked: number;
 
   @Column({
     type: 'decimal',
     precision: 8,
     scale: 2,
+    transformer: numericTransformer,
   })
   cpp: number;
 
@@ -44,6 +53,7 @@ export class Submission {
     type: 'decimal',
     precision: 10,
     scale: 2,
+    transformer: numericTransformer,
   })
   amount: number;
 

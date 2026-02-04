@@ -13,6 +13,7 @@ import { User } from '../users/user.entity';
 import { Order } from '../orders/order.entity';
 import { Submission } from '../submissions/submission.entity';
 import { WriterStatusLog } from './writer-status-log.entity';
+import { numericTransformer } from '../common/transformers/numeric.transformer';
 
 export enum WriterStatus {
   ACTIVE = 'active',
@@ -42,6 +43,7 @@ export class Writer {
     scale: 2,
     default: 0,
     name: 'balance_usd',
+    transformer: numericTransformer,
   })
   balanceUSD: number;
 
@@ -51,6 +53,7 @@ export class Writer {
     scale: 2,
     default: 0,
     name: 'lifetime_earnings',
+    transformer: numericTransformer,
   })
   lifetimeEarnings: number;
 

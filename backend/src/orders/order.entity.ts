@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { Writer } from '../writers/writer.entity';
 import { Submission } from '../submissions/submission.entity';
+import { numericTransformer } from '../common/transformers/numeric.transformer';
 
 export enum OrderStatus {
   ASSIGNED = 'assigned',
@@ -40,7 +41,13 @@ export class Order {
   @Column()
   deadline: Date;
 
-  @Column({ type: 'decimal', precision: 5, scale: 1, default: 1 })
+  @Column({
+    type: 'decimal',
+    precision: 5,
+    scale: 1,
+    default: 1,
+    transformer: numericTransformer,
+  })
   pages: number;
 
   @Column({
@@ -48,6 +55,7 @@ export class Order {
     precision: 8,
     scale: 2,
     comment: 'Cost per page in USD',
+    transformer: numericTransformer,
   })
   cpp: number; // Cost per page
 
@@ -56,6 +64,7 @@ export class Order {
     precision: 10,
     scale: 2,
     comment: 'Total amount (pages × CPP)',
+    transformer: numericTransformer,
   })
   totalAmount: number;
 
