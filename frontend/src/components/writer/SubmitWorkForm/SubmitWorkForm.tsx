@@ -111,12 +111,13 @@ const SubmitWorkForm: React.FC<SubmitWorkFormProps> = ({
         <input
           id="pagesWorked"
           type="number"
-          min="1"
+          min="0.1"
           max={maxPages || orderPages}
+          step="0.1"
           {...register('pagesWorked', {
             valueAsNumber: true,
             required: 'Pages worked is required',
-            min: { value: 1, message: 'Must complete at least 1 page' },
+            min: { value: 0.1, message: 'Must complete at least 0.1 pages' },
             max: { 
               value: maxPages || orderPages, 
               message: `Cannot exceed ${maxPages || orderPages} pages` 

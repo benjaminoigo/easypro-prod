@@ -1,13 +1,13 @@
-import { IsString, IsInt, IsNumber, IsOptional, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateSubmissionDto {
   @IsString()
   orderId: string;
 
-  @Transform(({ value }) => parseInt(value, 10))
-  @IsInt()
-  @Min(1)
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @Min(0.1)
   pagesWorked: number;
 
   @Transform(({ value }) => parseFloat(value))

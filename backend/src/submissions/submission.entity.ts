@@ -30,7 +30,7 @@ export class Submission {
   @Index()
   writerId: string;
 
-  @Column({ type: 'int', name: 'pages_worked' })
+  @Column({ type: 'decimal', precision: 5, scale: 1, name: 'pages_worked' })
   pagesWorked: number;
 
   @Column({
