@@ -34,7 +34,7 @@ export class User {
   @Column({ name: 'last_name' })
   lastName: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'varchar' })
   phone?: string;
 
   @Column({
@@ -59,7 +59,7 @@ export class User {
   @Column({ nullable: true, name: 'invited_by' })
   invitedBy?: string;
 
-  @Column({ nullable: true, name: 'reset_otp_hash' })
+  @Column({ nullable: true, name: 'reset_otp_hash', type: 'varchar' })
   resetOtpHash?: string | null;
 
   @Column({ nullable: true, name: 'reset_otp_expiry', type: 'timestamp' })
