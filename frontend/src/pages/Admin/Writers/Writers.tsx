@@ -33,9 +33,16 @@ const Writers: React.FC = () => {
   const [resetExpiry, setResetExpiry] = useState<Date | null>(null);
   const [resettingFor, setResettingFor] = useState<Writer | null>(null);
   const [generatingOtp, setGeneratingOtp] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchWriters();
+  }, []);
+
+  useEffect(() => {
+    const handleClose = () => setOpenMenuId(null);
+    document.addEventListener('click', handleClose);
+    return () => document.removeEventListener('click', handleClose);
   }, []);
 
   const fetchWriters = async () => {
@@ -268,21 +275,40 @@ const Writers: React.FC = () => {
                   <td>
                     <div className="action-buttons">
                       <button
-                        className={`action-btn ${writer.status === 'active' ? 'deactivate' : 'activate'}`}
-                        onClick={() => handleToggleStatus(writer.id, writer.status)}
+                        className="action-btn more"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(openMenuId === writer.id ? null : writer.id);
+                        }}
                       >
-                        {writer.status === 'active' ? 'Suspend' : 'Activate'}
-                      </button>
-                      <button
-                        className="action-btn"
-                        onClick={() => handleGenerateResetOtp(writer)}
-                        disabled={generatingOtp}
-                      >
-                        Reset Password
-                      </button>
-                      <button className="action-btn more">
                         <MoreVertical />
                       </button>
+                      {openMenuId === writer.id && (
+                        <div
+                          className="action-menu"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            className={`menu-item ${writer.status === 'active' ? 'danger' : 'success'}`}
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              handleToggleStatus(writer.id, writer.status);
+                            }}
+                          >
+                            {writer.status === 'active' ? 'Suspend Writer' : 'Activate Writer'}
+                          </button>
+                          <button
+                            className="menu-item"
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              handleGenerateResetOtp(writer);
+                            }}
+                            disabled={generatingOtp}
+                          >
+                            Reset Password
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>
