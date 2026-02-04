@@ -1,4 +1,5 @@
-import { IsString, IsInt, IsNumber, IsDateString, IsOptional, Min } from 'class-validator';
+import { IsString, IsNumber, IsDateString, IsOptional, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateOrderDto {
   @IsOptional()
@@ -11,10 +12,12 @@ export class CreateOrderDto {
   @IsDateString()
   deadline: Date;
 
-  @IsInt()
-  @Min(1)
+  @Transform(({ value }) => parseFloat(value))
+  @IsNumber()
+  @Min(0.1)
   pages: number;
 
+  @Transform(({ value }) => parseFloat(value))
   @IsNumber()
   @Min(0.01)
   cpp: number; // Cost per page
