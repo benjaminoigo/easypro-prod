@@ -188,7 +188,7 @@ export class SubmissionsService {
       approved: parseInt(stats.approved),
       rejected: parseInt(stats.rejected),
       totalApprovedAmount: parseFloat(stats.totalApprovedAmount) || 0,
-      totalApprovedPages: parseInt(stats.totalApprovedPages) || 0,
+      totalApprovedPages: parseFloat(stats.totalApprovedPages) || 0,
     };
   }
 
@@ -215,7 +215,7 @@ export class SubmissionsService {
       })
       .getRawOne();
 
-    return parseInt(result.totalPages) || 0;
+    return parseFloat(result.totalPages) || 0;
   }
 
   private async approveSubmission(submission: Submission): Promise<void> {

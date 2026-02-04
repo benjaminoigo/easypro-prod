@@ -60,10 +60,24 @@ export class Writer {
   @Column({ default: 0, name: 'total_orders_completed' })
   totalOrdersCompleted: number;
 
-  @Column({ default: 0, name: 'total_pages_completed' })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+    name: 'total_pages_completed',
+    transformer: numericTransformer,
+  })
   totalPagesCompleted: number;
 
-  @Column({ default: 0, name: 'current_shift_pages' })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+    name: 'current_shift_pages',
+    transformer: numericTransformer,
+  })
   currentShiftPages: number;
 
   @Column({ default: 0, name: 'current_shift_orders' })

@@ -115,7 +115,7 @@ export class AnalyticsService {
     return earnings.map(earning => ({
       name: `${earning.firstName} ${earning.lastName}`,
       earnings: parseFloat(earning.earnings) || 0,
-      currentShiftPages: parseInt(earning.currentShiftPages) || 0,
+      currentShiftPages: parseFloat(earning.currentShiftPages) || 0,
       status: earning.status,
     }));
   }
@@ -139,7 +139,7 @@ export class AnalyticsService {
 
     return submissions.map(submission => ({
       date: submission.date,
-      pages: parseInt(submission.totalPages) || 0,
+      pages: parseFloat(submission.totalPages) || 0,
       activeWriters: parseInt(submission.activeWriters) || 0,
     }));
   }
@@ -229,7 +229,7 @@ export class AnalyticsService {
     return {
       totalSubmissions: parseInt(stats.totalSubmissions),
       pendingSubmissions: parseInt(stats.pendingSubmissions),
-      totalApprovedPages: parseInt(stats.totalPages) || 0,
+      totalApprovedPages: parseFloat(stats.totalPages) || 0,
     };
   }
 
@@ -324,7 +324,7 @@ export class AnalyticsService {
       year: parseInt(earning.year),
       month: parseInt(earning.month),
       earnings: parseFloat(earning.earnings) || 0,
-      pages: parseInt(earning.pages) || 0,
+      pages: parseFloat(earning.pages) || 0,
     }));
   }
 
