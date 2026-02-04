@@ -10,7 +10,6 @@ import {
   FileText,
   DollarSign,
 } from 'lucide-react';
-import { useAuth } from '../../../hooks/useAuth';
 import api from '../../../services/api';
 import { formatUSD } from '../../../utils/formatUSD';
 import { toast } from 'react-toastify';
@@ -24,7 +23,6 @@ interface ProfileData {
 }
 
 const Profile: React.FC = () => {
-  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>({

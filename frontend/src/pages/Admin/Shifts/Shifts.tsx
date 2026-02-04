@@ -5,7 +5,6 @@ import {
   Users,
   Settings,
   Play,
-  Pause,
   CheckCircle,
   AlertCircle,
   Target,

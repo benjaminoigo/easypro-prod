@@ -7,7 +7,6 @@ import {
   Clock,
   BarChart3,
   CreditCard,
-  Settings,
   LogOut,
   Menu,
   X,

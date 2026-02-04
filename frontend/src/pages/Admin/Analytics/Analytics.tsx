@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   TrendingUp,
   TrendingDown,
   DollarSign,
   Users,
   FileText,
-  Calendar,
   Download,
+  Calendar,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -27,7 +27,6 @@ import {
 } from 'recharts';
 import api from '../../../services/api';
 import { formatUSD } from '../../../utils/formatUSD';
-import { toast } from 'react-toastify';
 import './Analytics.css';
 
 interface AnalyticsData {
@@ -75,11 +74,7 @@ const Analytics: React.FC = () => {
     { name: 'Week 4', avgRating: 4.6, completionRate: 92 },
   ];
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, [dateRange]);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const response = await api.get(`/analytics/admin-dashboard?range=${dateRange}`);
       setAnalyticsData(response.data);
@@ -97,7 +92,11 @@ const Analytics: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
   if (loading) {
     return (

@@ -14,8 +14,6 @@ import {
   ThumbsDown,
   RotateCcw,
   User,
-  Calendar,
-  DollarSign,
   File,
 } from 'lucide-react';
 import { Submission } from '../../../types';

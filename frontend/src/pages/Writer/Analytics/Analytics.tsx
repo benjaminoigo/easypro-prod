@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -6,7 +6,6 @@ import {
   FileText,
   Star,
   Clock,
-  Calendar,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -23,7 +22,6 @@ import {
 } from 'recharts';
 import api from '../../../services/api';
 import { formatUSD } from '../../../utils/formatUSD';
-import { toast } from 'react-toastify';
 import './Analytics.css';
 
 interface WriterAnalytics {
@@ -73,11 +71,7 @@ const Analytics: React.FC = () => {
     { month: 'Jun', rating: 4.7 },
   ];
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, [dateRange]);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const response = await api.get(`/analytics/my-analytics?range=${dateRange}`);
       setAnalytics(response.data);
@@ -95,7 +89,11 @@ const Analytics: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
   if (loading) {
     return (

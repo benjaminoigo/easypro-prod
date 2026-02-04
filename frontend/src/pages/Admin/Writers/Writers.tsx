@@ -9,7 +9,6 @@ import {
   Clock,
   DollarSign,
   Star,
-  Mail,
   Copy,
   Link as LinkIcon,
   RefreshCw,

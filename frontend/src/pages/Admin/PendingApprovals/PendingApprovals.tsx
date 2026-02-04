@@ -7,7 +7,6 @@ import {
   Calendar,
   AlertCircle,
   CheckCircle,
-  XCircle,
   RefreshCw,
 } from 'lucide-react';
 import api from '../../../services/api';

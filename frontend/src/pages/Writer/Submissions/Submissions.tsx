@@ -11,7 +11,6 @@ import {
   Eye,
   Download,
   X,
-  DollarSign,
   Calendar,
   File,
 } from 'lucide-react';

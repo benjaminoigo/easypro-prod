@@ -7,7 +7,6 @@ import {
   Clock,
   XCircle,
   Download,
-  User,
   Calendar,
 } from 'lucide-react';
 import { Payment } from '../../../types';
