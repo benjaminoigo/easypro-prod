@@ -39,6 +39,7 @@ const AdminLayout: React.FC = () => {
     { name: 'Shifts', href: '/admin/shifts', icon: Clock },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
     { name: 'Payments', href: '/admin/payments', icon: CreditCard },
+    { name: 'Profile', href: '/admin/profile', icon: User },
   ];
 
   const isActiveRoute = (href: string) => {

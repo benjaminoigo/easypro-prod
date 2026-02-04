@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +10,7 @@ import { Writer, WriterStatus } from '../writers/writer.entity';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { ResetPasswordWithOtpDto } from './dto/reset-password-with-otp.dto';
 
 @Injectable()
 export class AuthService {
@@ -197,5 +198,51 @@ export class AuthService {
     }
 
     await this.userRepository.remove(user);
+  }
+
+  async generatePasswordResetOtp(userId: string): Promise<{ otp: string; expiresAt: Date }> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    user.resetOtpHash = await bcrypt.hash(otp, 10);
+    user.resetOtpExpiry = expiresAt;
+    await this.userRepository.save(user);
+
+    return { otp, expiresAt };
+  }
+
+  async resetPasswordWithOtp(dto: ResetPasswordWithOtpDto): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    if (!user || !user.resetOtpHash || !user.resetOtpExpiry) {
+      throw new BadRequestException('Invalid or expired OTP');
+    }
+
+    if (new Date() > user.resetOtpExpiry) {
+      user.resetOtpHash = null;
+      user.resetOtpExpiry = null;
+      await this.userRepository.save(user);
+      throw new BadRequestException('OTP has expired');
+    }
+
+    const isValid = await bcrypt.compare(dto.otp, user.resetOtpHash);
+    if (!isValid) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    user.password = await bcrypt.hash(dto.newPassword, 12);
+    user.resetOtpHash = null;
+    user.resetOtpExpiry = null;
+    await this.userRepository.save(user);
   }
 }

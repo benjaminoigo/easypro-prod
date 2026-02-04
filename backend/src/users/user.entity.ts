@@ -34,6 +34,9 @@ export class User {
   @Column({ name: 'last_name' })
   lastName: string;
 
+  @Column({ nullable: true })
+  phone?: string;
+
   @Column({
     type: 'enum',
     enum: UserRole,
@@ -55,6 +58,12 @@ export class User {
 
   @Column({ nullable: true, name: 'invited_by' })
   invitedBy?: string;
+
+  @Column({ nullable: true, name: 'reset_otp_hash' })
+  resetOtpHash?: string | null;
+
+  @Column({ nullable: true, name: 'reset_otp_expiry', type: 'timestamp' })
+  resetOtpExpiry?: Date | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -28,6 +28,11 @@ const Writers: React.FC = () => {
   const [inviteLink, setInviteLink] = useState('');
   const [inviteExpiry, setInviteExpiry] = useState<Date | null>(null);
   const [generatingLink, setGeneratingLink] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetOtp, setResetOtp] = useState('');
+  const [resetExpiry, setResetExpiry] = useState<Date | null>(null);
+  const [resettingFor, setResettingFor] = useState<Writer | null>(null);
+  const [generatingOtp, setGeneratingOtp] = useState(false);
 
   useEffect(() => {
     fetchWriters();
@@ -57,6 +62,27 @@ const Writers: React.FC = () => {
       toast.error('Failed to generate invite link');
     } finally {
       setGeneratingLink(false);
+    }
+  };
+
+  const handleGenerateResetOtp = async (writer: Writer) => {
+    if (!writer.user?.id) {
+      toast.error('User record not found for this writer');
+      return;
+    }
+    setGeneratingOtp(true);
+    try {
+      const response = await api.post(`/auth/reset-otp/${writer.user.id}`);
+      setResetOtp(response.data.otp);
+      setResetExpiry(new Date(response.data.expiresAt));
+      setResettingFor(writer);
+      setShowResetModal(true);
+      toast.success('OTP generated successfully');
+    } catch (error) {
+      console.error('Error generating OTP:', error);
+      toast.error('Failed to generate OTP');
+    } finally {
+      setGeneratingOtp(false);
     }
   };
 
@@ -247,6 +273,13 @@ const Writers: React.FC = () => {
                       >
                         {writer.status === 'active' ? 'Suspend' : 'Activate'}
                       </button>
+                      <button
+                        className="action-btn"
+                        onClick={() => handleGenerateResetOtp(writer)}
+                        disabled={generatingOtp}
+                      >
+                        Reset Password
+                      </button>
                       <button className="action-btn more">
                         <MoreVertical />
                       </button>
@@ -331,6 +364,45 @@ const Writers: React.FC = () => {
             
             <div className="modal-actions">
               <button className="btn-secondary" onClick={() => setShowInviteModal(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showResetModal && (
+        <div className="modal-overlay" onClick={() => setShowResetModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Reset Password OTP</h2>
+            <p>
+              Share this OTP with {resettingFor?.user?.firstName} {resettingFor?.user?.lastName}.
+              It expires in 5 minutes.
+            </p>
+            <div className="invite-link-section">
+              <label>One-Time Password</label>
+              <div className="link-container">
+                <input type="text" value={resetOtp} readOnly className="link-input" />
+                <button className="copy-btn" onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(resetOtp);
+                    toast.success('OTP copied to clipboard!');
+                  } catch (error) {
+                    toast.error('Failed to copy OTP');
+                  }
+                }}>
+                  <Copy />
+                </button>
+              </div>
+              {resetExpiry && (
+                <p className="expiry-info">
+                  <Clock />
+                  Expires: {formatExpiry(resetExpiry)}
+                </p>
+              )}
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowResetModal(false)}>
                 Close
               </button>
             </div>

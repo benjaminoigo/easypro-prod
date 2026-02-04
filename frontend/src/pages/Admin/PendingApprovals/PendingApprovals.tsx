@@ -39,9 +39,12 @@ const PendingApprovals: React.FC = () => {
   const fetchPendingUsers = async () => {
     try {
       const response = await api.get('/users/pending-approvals');
-      // Filter out placeholder/invite users
+      // Filter out placeholder/invite users and non-writer/past approvals
       const realUsers = response.data.filter(
-        (user: PendingUser) => !user.email.includes('@placeholder.temp')
+        (user: PendingUser) =>
+          !user.email.includes('@placeholder.temp') &&
+          user.role === 'writer' &&
+          user.isApproved === false
       );
       setPendingUsers(realUsers);
     } catch (error) {

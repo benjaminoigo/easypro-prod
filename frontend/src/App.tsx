@@ -13,6 +13,7 @@ import AuthLayout from './layouts/AuthLayout';
 // Auth Pages
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
+import ResetPassword from './pages/Auth/ResetPassword/ResetPassword';
 
 // Admin Pages
 import AdminDashboard from './pages/Admin/Dashboard';
@@ -23,6 +24,7 @@ import AdminAnalytics from './pages/Admin/Analytics';
 import AdminPayments from './pages/Admin/Payments';
 import AdminPendingApprovals from './pages/Admin/PendingApprovals';
 import AdminSubmissions from './pages/Admin/Submissions';
+import AdminProfile from './pages/Admin/Profile/Profile';
 
 // Writer Pages
 import WriterDashboard from './pages/Writer/Dashboard';
@@ -40,6 +42,7 @@ function App() {
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
           
           {/* Admin routes */}
@@ -60,6 +63,7 @@ function App() {
             <Route path="payments" element={<AdminPayments />} />
             <Route path="pending-approvals" element={<AdminPendingApprovals />} />
             <Route path="submissions" element={<AdminSubmissions />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
           
           {/* Writer routes */}

@@ -17,6 +17,7 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UserRole } from '../users/user.entity';
+import { ResetPasswordWithOtpDto } from './dto/reset-password-with-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -44,6 +45,13 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @Post('reset-otp/:userId')
+  async generateResetOtp(@Param('userId') userId: string, @CurrentUser() user: any) {
+    return this.authService.generatePasswordResetOtp(userId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Put('approve/:userId')
   async approveUser(@Param('userId') userId: string, @CurrentUser() user: any) {
     return this.authService.approveUser(userId);
@@ -60,5 +68,11 @@ export class AuthController {
   @Get('profile')
   async getProfile(@CurrentUser() user: any) {
     return { user };
+  }
+
+  @Post('reset-password-with-otp')
+  async resetPasswordWithOtp(@Body() dto: ResetPasswordWithOtpDto) {
+    await this.authService.resetPasswordWithOtp(dto);
+    return { message: 'Password reset successful' };
   }
 }

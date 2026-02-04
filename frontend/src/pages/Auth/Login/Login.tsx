@@ -195,6 +195,12 @@ const Login: React.FC = () => {
                 Register
               </Link>
             </p>
+            <p className="login-footer-text">
+              Forgot password?{' '}
+              <Link to="/reset-password" className="login-footer-link">
+                Reset here
+              </Link>
+            </p>
           </div>
         </div>
       </div>
