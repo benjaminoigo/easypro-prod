@@ -36,6 +36,13 @@ interface WriterLimits {
   remainingPages: number;
 }
 
+interface ShiftProgress {
+  targetPages: number;
+  approvedPages: number;
+  pendingPages: number;
+  percentComplete: number;
+}
+
 const MyOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +60,8 @@ const MyOrders: React.FC = () => {
     hasReachedLimit: false,
     remainingPages: 20,
   });
+  const [shiftProgress, setShiftProgress] = useState<ShiftProgress | null>(null);
+  const [shiftProgressLoading, setShiftProgressLoading] = useState(true);
   const [newOrder, setNewOrder] = useState<NewOrderForm>({
     orderNumber: '',
     subject: '',
@@ -64,6 +73,9 @@ const MyOrders: React.FC = () => {
 
   useEffect(() => {
     fetchOrders();
+    fetchShiftProgress();
+    const interval = setInterval(fetchShiftProgress, 2 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchOrders = async () => {
@@ -88,6 +100,22 @@ const MyOrders: React.FC = () => {
       toast.error('Failed to load orders');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchShiftProgress = async () => {
+    try {
+      const response = await api.get('/shifts/my-progress');
+      setShiftProgress({
+        targetPages: Number(response.data.targetPages) || 0,
+        approvedPages: Number(response.data.approvedPages) || 0,
+        pendingPages: Number(response.data.pendingPages) || 0,
+        percentComplete: Number(response.data.percentComplete) || 0,
+      });
+    } catch (error) {
+      console.error('Error fetching shift progress:', error);
+    } finally {
+      setShiftProgressLoading(false);
     }
   };
 
@@ -237,23 +265,33 @@ const MyOrders: React.FC = () => {
     );
   }
 
+  const progressPages = shiftProgress?.approvedPages ?? writerLimits.currentShiftPages;
+  const progressTarget = shiftProgress?.targetPages ?? writerLimits.maxPagesPerShift;
+  const progressPercent = progressTarget > 0
+    ? Math.min((progressPages / progressTarget) * 100, 100)
+    : 0;
+
   return (
     <div className="my-orders-page">
       {/* Shift Limit Tracker */}
       <div className={`shift-limit-tracker ${writerLimits.hasReachedLimit ? 'at-limit' : writerLimits.currentShiftPages >= writerLimits.maxPagesPerShift * 0.8 ? 'near-limit' : ''}`}>
         <div className="limit-info">
-          <span className="limit-label">Shift Progress:</span>
+          <span className="limit-label">Shift Progress (Approved):</span>
           <span className="limit-value">
-            #{writerLimits.currentShiftOrders}/{writerLimits.maxPagesPerShift} limit
+            {progressPages} / {progressTarget} pages
           </span>
           <span className="pages-info">
-            ({writerLimits.currentShiftPages} / {writerLimits.maxPagesPerShift} pages)
+            {shiftProgressLoading
+              ? '(updating...)'
+              : shiftProgress
+                ? `${shiftProgress.pendingPages} pending`
+                : `#${writerLimits.currentShiftOrders} orders`}
           </span>
         </div>
         <div className="limit-bar">
           <div 
             className="limit-fill" 
-            style={{ width: `${Math.min((writerLimits.currentShiftPages / writerLimits.maxPagesPerShift) * 100, 100)}%` }}
+            style={{ width: `${progressPercent}%` }}
           />
         </div>
         {writerLimits.hasReachedLimit && (
