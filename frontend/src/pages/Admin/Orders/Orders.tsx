@@ -19,6 +19,7 @@ import { Order } from '../../../types';
 import api from '../../../services/api';
 import { formatUSD } from '../../../utils/formatUSD';
 import { toast } from 'react-toastify';
+import ConfirmModal from '../../../components/common/ConfirmModal';
 import './Orders.css';
 
 interface Writer {
@@ -53,6 +54,8 @@ const Orders: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Order | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [formData, setFormData] = useState<OrderFormData>({
     subject: '',
     instructions: '',
@@ -89,16 +92,23 @@ const Orders: React.FC = () => {
     }
   };
 
-  const handleDeleteOrder = async (orderId: string) => {
-    if (!window.confirm('Are you sure you want to delete this order?')) return;
+  const handleDeleteOrder = (order: Order) => {
+    setDeleteTarget(order);
+  };
 
+  const confirmDeleteOrder = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await api.delete(`/orders/${orderId}`);
+      await api.delete(`/orders/${deleteTarget.id}`);
       toast.success('Order deleted successfully');
+      setDeleteTarget(null);
       fetchOrders();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting order:', error);
-      toast.error('Failed to delete order');
+      toast.error(error.response?.data?.message || 'Failed to delete order');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -362,7 +372,7 @@ const Orders: React.FC = () => {
                       <button 
                         className="action-btn delete" 
                         title="Delete"
-                        onClick={() => handleDeleteOrder(order.id)}
+                        onClick={() => handleDeleteOrder(order)}
                       >
                         <Trash2 />
                       </button>
@@ -605,6 +615,18 @@ const Orders: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Delete order?"
+        message="This will permanently delete the order. If it has submissions, the delete will be blocked."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger
+        isLoading={deleting}
+        onConfirm={confirmDeleteOrder}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
     </div>
   );
 };

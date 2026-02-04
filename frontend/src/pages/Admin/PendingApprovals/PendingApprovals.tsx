@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import api from '../../../services/api';
 import { toast } from 'react-toastify';
+import ConfirmModal from '../../../components/common/ConfirmModal';
 import './PendingApprovals.css';
 
 interface PendingUser {
@@ -28,6 +29,8 @@ const PendingApprovals: React.FC = () => {
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<PendingUser | null>(null);
+  const [rejecting, setRejecting] = useState(false);
 
   useEffect(() => {
     fetchPendingUsers();
@@ -63,20 +66,24 @@ const PendingApprovals: React.FC = () => {
     }
   };
 
-  const handleReject = async (userId: string) => {
-    if (!window.confirm('Are you sure you want to reject this user? This will delete their registration.')) {
-      return;
-    }
-    
-    setProcessingId(userId);
+  const handleReject = (user: PendingUser) => {
+    setRejectTarget(user);
+  };
+
+  const confirmReject = async () => {
+    if (!rejectTarget) return;
+    setRejecting(true);
+    setProcessingId(rejectTarget.id);
     try {
-      await api.delete(`/auth/reject/${userId}`);
+      await api.delete(`/auth/reject/${rejectTarget.id}`);
       toast.success('User rejected and removed');
-      setPendingUsers(pendingUsers.filter(user => user.id !== userId));
+      setPendingUsers(pendingUsers.filter(user => user.id !== rejectTarget.id));
+      setRejectTarget(null);
     } catch (error) {
       console.error('Error rejecting user:', error);
       toast.error('Failed to reject user');
     } finally {
+      setRejecting(false);
       setProcessingId(null);
     }
   };
@@ -178,7 +185,7 @@ const PendingApprovals: React.FC = () => {
                 </button>
                 <button
                   className="btn-reject"
-                  onClick={() => handleReject(user.id)}
+                  onClick={() => handleReject(user)}
                   disabled={processingId === user.id}
                 >
                   <UserX />
@@ -189,6 +196,18 @@ const PendingApprovals: React.FC = () => {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        open={!!rejectTarget}
+        title="Reject user?"
+        message="This will delete the user registration and cannot be undone."
+        confirmText="Reject"
+        cancelText="Cancel"
+        isDanger
+        isLoading={rejecting}
+        onConfirm={confirmReject}
+        onCancel={() => !rejecting && setRejectTarget(null)}
+      />
     </div>
   );
 };
