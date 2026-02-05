@@ -99,11 +99,11 @@ export class Submission {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => Order, (order) => order.submissions)
+  @ManyToOne(() => Order, (order) => order.submissions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
-  @ManyToOne(() => Writer, (writer) => writer.submissions)
+  @ManyToOne(() => Writer, (writer) => writer.submissions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'writer_id' })
   writer: Writer;
 

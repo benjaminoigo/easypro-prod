@@ -170,17 +170,26 @@ export class WritersService {
 
   async updateBalance(id: string, amount: number): Promise<Writer> {
     const writer = await this.findOne(id);
-    writer.balanceUSD = Number(writer.balanceUSD) + amount;
-    writer.lifetimeEarnings = Number(writer.lifetimeEarnings) + amount;
+    const amountValue = Number(amount);
+    if (!Number.isFinite(amountValue)) {
+      throw new BadRequestException('Invalid amount');
+    }
+    writer.balanceUSD = Number(writer.balanceUSD) + amountValue;
+    writer.lifetimeEarnings = Number(writer.lifetimeEarnings) + amountValue;
     return this.writerRepository.save(writer);
   }
 
   async updateShiftStats(id: string, pages: number, orders: number = 1): Promise<Writer> {
     const writer = await this.findOne(id);
-    writer.currentShiftPages += pages;
-    writer.currentShiftOrders += orders;
-    writer.totalPagesCompleted += pages;
-    writer.totalOrdersCompleted += orders;
+    const pagesValue = Number(pages);
+    const ordersValue = Number(orders);
+    if (!Number.isFinite(pagesValue) || !Number.isFinite(ordersValue)) {
+      throw new BadRequestException('Invalid shift stats');
+    }
+    writer.currentShiftPages = Number(writer.currentShiftPages) + pagesValue;
+    writer.currentShiftOrders = Number(writer.currentShiftOrders) + ordersValue;
+    writer.totalPagesCompleted = Number(writer.totalPagesCompleted) + pagesValue;
+    writer.totalOrdersCompleted = Number(writer.totalOrdersCompleted) + ordersValue;
     return this.writerRepository.save(writer);
   }
 

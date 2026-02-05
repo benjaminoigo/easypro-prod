@@ -23,8 +23,22 @@ export class OrdersService {
   ) {}
 
   async create(createOrderDto: CreateOrderDto, files?: Express.Multer.File[]): Promise<Order> {
+    const providedOrderNumber = createOrderDto.orderNumber?.trim();
+    if (createOrderDto.orderNumber !== undefined && !providedOrderNumber) {
+      throw new BadRequestException('Order number cannot be empty');
+    }
+    if (providedOrderNumber) {
+      const existingOrder = await this.orderRepository.findOne({
+        where: { orderNumber: providedOrderNumber },
+        select: ['id'],
+      });
+      if (existingOrder) {
+        throw new BadRequestException('Order number already exists');
+      }
+    }
+
     // Use provided order number or generate a unique one
-    const orderNumber = createOrderDto.orderNumber || await this.generateOrderNumber();
+    const orderNumber = providedOrderNumber || await this.generateOrderNumber();
     
     // Calculate total amount
     const totalAmount = createOrderDto.pages * createOrderDto.cpp;
@@ -92,6 +106,23 @@ export class OrdersService {
 
   async update(id: string, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const order = await this.findOne(id);
+
+    if (updateOrderDto.orderNumber !== undefined) {
+      const nextOrderNumber = updateOrderDto.orderNumber?.trim();
+      if (!nextOrderNumber) {
+        throw new BadRequestException('Order number cannot be empty');
+      }
+      if (nextOrderNumber !== order.orderNumber) {
+        const existingOrder = await this.orderRepository.findOne({
+          where: { orderNumber: nextOrderNumber },
+          select: ['id'],
+        });
+        if (existingOrder) {
+          throw new BadRequestException('Order number already exists');
+        }
+      }
+      updateOrderDto.orderNumber = nextOrderNumber;
+    }
 
     // Recalculate total amount if pages or cpp changed
     if (updateOrderDto.pages || updateOrderDto.cpp) {
@@ -177,16 +208,6 @@ export class OrdersService {
 
   async remove(id: string): Promise<void> {
     const order = await this.findOne(id);
-    const submissionsCount = await this.submissionRepository.count({
-      where: { orderId: order.id },
-    });
-
-    if (submissionsCount > 0) {
-      throw new BadRequestException(
-        'Cannot delete order with submissions. Cancel the order instead.',
-      );
-    }
-
     await this.orderRepository.remove(order);
   }
 

@@ -53,7 +53,7 @@ export class WriterStatusLog {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => Writer, (writer) => writer.statusLogs)
+  @ManyToOne(() => Writer, (writer) => writer.statusLogs, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'writer_id' })
   writer: Writer;
 }

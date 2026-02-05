@@ -16,6 +16,7 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   pages?: number;
 
   @IsOptional()
+  @Transform(({ value }) => parseFloat(value))
   @IsNumber()
   @Min(0.01)
   cpp?: number;

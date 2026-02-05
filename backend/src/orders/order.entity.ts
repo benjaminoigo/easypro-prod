@@ -113,7 +113,7 @@ export class Order {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => Writer, (writer) => writer.orders, { nullable: true })
+  @ManyToOne(() => Writer, (writer) => writer.orders, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'writer_id' })
   writer?: Writer;
 

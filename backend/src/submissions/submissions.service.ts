@@ -89,7 +89,11 @@ export class SubmissionsService {
     const savedSubmission = await this.submissionRepository.save(submission) as unknown as Submission;
 
     // Update writer shift stats
-    writer.currentShiftPages += createSubmissionDto.pagesWorked;
+    const pagesWorked = Number(createSubmissionDto.pagesWorked);
+    if (!Number.isFinite(pagesWorked)) {
+      throw new BadRequestException('Invalid pages worked');
+    }
+    writer.currentShiftPages = Number(writer.currentShiftPages) + pagesWorked;
     writer.lastSubmissionDate = new Date();
     await this.writerRepository.save(writer);
 
@@ -227,11 +231,14 @@ export class SubmissionsService {
     if (writer) {
       const amount = Number(submission.amount);
       const pagesWorked = Number(submission.pagesWorked);
+      if (!Number.isFinite(amount) || !Number.isFinite(pagesWorked)) {
+        throw new BadRequestException('Invalid submission values');
+      }
 
       writer.balanceUSD = Number(writer.balanceUSD) + amount;
       writer.lifetimeEarnings = Number(writer.lifetimeEarnings) + amount;
       writer.totalPagesCompleted = Number(writer.totalPagesCompleted) + pagesWorked;
-      writer.totalOrdersCompleted += 1;
+      writer.totalOrdersCompleted = Number(writer.totalOrdersCompleted) + 1;
       await this.writerRepository.save(writer);
     }
 

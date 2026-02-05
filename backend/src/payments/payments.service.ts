@@ -24,7 +24,12 @@ export class PaymentsService {
       throw new NotFoundException('Writer not found');
     }
 
-    if (createPaymentDto.amount > writer.balanceUSD) {
+    const amountValue = Number(createPaymentDto.amount);
+    if (!Number.isFinite(amountValue)) {
+      throw new BadRequestException('Invalid payment amount');
+    }
+
+    if (amountValue > Number(writer.balanceUSD)) {
       throw new BadRequestException('Payment amount exceeds writer balance');
     }
 
@@ -36,7 +41,7 @@ export class PaymentsService {
     const savedPayment = await this.paymentRepository.save(payment);
 
     // Deduct amount from writer balance
-    writer.balanceUSD = Number(writer.balanceUSD) - createPaymentDto.amount;
+    writer.balanceUSD = Number(writer.balanceUSD) - amountValue;
     await this.writerRepository.save(writer);
 
     return savedPayment;
@@ -117,6 +122,9 @@ export class PaymentsService {
 
     if (writer) {
       const amount = Number(payment.amount);
+      if (!Number.isFinite(amount)) {
+        throw new BadRequestException('Invalid payment amount');
+      }
       writer.balanceUSD = Number(writer.balanceUSD) + amount;
       await this.writerRepository.save(writer);
     }

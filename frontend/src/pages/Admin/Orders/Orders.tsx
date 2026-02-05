@@ -619,7 +619,7 @@ const Orders: React.FC = () => {
       <ConfirmModal
         open={!!deleteTarget}
         title="Delete order?"
-        message="This will permanently delete the order. If it has submissions, the delete will be blocked."
+        message="This will permanently delete the order and any associated submissions."
         confirmText="Delete"
         cancelText="Cancel"
         isDanger

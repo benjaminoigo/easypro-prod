@@ -74,7 +74,7 @@ export class Payment {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => Writer)
+  @ManyToOne(() => Writer, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'writer_id' })
   writer: Writer;
 

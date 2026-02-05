@@ -93,7 +93,7 @@ export class Writer {
   updatedAt: Date;
 
   // Relations
-  @OneToOne(() => User, { eager: true })
+  @OneToOne(() => User, { eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
