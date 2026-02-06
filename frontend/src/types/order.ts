@@ -30,6 +30,8 @@ export interface Submission {
   amount: number;
   filePath?: string;
   fileName?: string;
+  filePaths?: string[];
+  fileNames?: string[];
   fileUrl?: string;
   notes?: string;
   feedback?: string;

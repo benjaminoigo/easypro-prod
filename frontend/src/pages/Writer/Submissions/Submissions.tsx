@@ -18,6 +18,7 @@ import { Submission } from '../../../types';
 import api from '../../../services/api';
 import { toast } from 'react-toastify';
 import { formatUSD } from '../../../utils/formatUSD';
+import { getDownloadUrl } from '../../../utils/getDownloadUrl';
 import './Submissions.css';
 
 const Submissions: React.FC = () => {
@@ -91,30 +92,24 @@ const Submissions: React.FC = () => {
     setShowViewModal(true);
   };
 
-  const handleDownload = async (submission: Submission) => {
-    if (!submission.filePath) {
+  const resolveFilePath = (submission: Submission) =>
+    submission.filePath || submission.filePaths?.[0];
+
+  const handleDownload = (submission: Submission) => {
+    const downloadUrl = getDownloadUrl(resolveFilePath(submission));
+    if (!downloadUrl) {
       toast.error('No file available for download');
       return;
     }
-    
-    try {
-      // Extract just the filename from the path (remove 'uploads\\' or 'uploads/')
-      const fileName = submission.filePath.replace(/^uploads[\\/]/, '');
-      const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
-      const downloadUrl = `${apiBaseUrl}/uploads/${fileName}`;
-      
-      // Open in new tab or trigger download
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = submission.fileName || 'submission-file';
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error('Download error:', error);
-      toast.error('Failed to download file');
-    }
+
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.rel = 'noopener noreferrer';
+    link.target = '_blank';
+    link.download = submission.fileName || submission.fileNames?.[0] || 'submission-file';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const stats = {
@@ -239,7 +234,7 @@ const Submissions: React.FC = () => {
                   <Eye />
                   View Details
                 </button>
-                {submission.filePath && (
+                {resolveFilePath(submission) && (
                   <button 
                     className="action-btn"
                     onClick={() => handleDownload(submission)}
@@ -320,7 +315,7 @@ const Submissions: React.FC = () => {
                 </div>
               )}
 
-              {selectedSubmission.filePath && (
+              {resolveFilePath(selectedSubmission) && (
                 <div className="detail-section">
                   <h3>Uploaded File</h3>
                   <div className="file-info-card">
@@ -355,7 +350,7 @@ const Submissions: React.FC = () => {
               <button className="btn-secondary" onClick={() => setShowViewModal(false)}>
                 Close
               </button>
-              {selectedSubmission.filePath && (
+              {resolveFilePath(selectedSubmission) && (
                 <button 
                   className="btn-primary"
                   onClick={() => handleDownload(selectedSubmission)}

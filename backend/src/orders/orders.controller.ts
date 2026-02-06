@@ -27,6 +27,7 @@ import { OrderStatus } from './order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CancelOrderDto } from './dto/cancel-order.dto';
+import { getUploadSubdir } from '../common/uploads/upload-path';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
@@ -42,7 +43,9 @@ export class OrdersController {
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       storage: diskStorage({
-        destination: './uploads/orders',
+        destination: (req, file, cb) => {
+          cb(null, getUploadSubdir(process.env.UPLOAD_DEST, 'orders'));
+        },
         filename: (req, file, cb) => {
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname);
@@ -68,7 +71,9 @@ export class OrdersController {
   @UseInterceptors(
     FilesInterceptor('files', 10, {
       storage: diskStorage({
-        destination: './uploads/orders',
+        destination: (req, file, cb) => {
+          cb(null, getUploadSubdir(process.env.UPLOAD_DEST, 'orders'));
+        },
         filename: (req, file, cb) => {
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname);

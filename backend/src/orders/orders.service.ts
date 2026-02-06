@@ -8,6 +8,7 @@ import { Submission } from '../submissions/submission.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CancelOrderDto } from './dto/cancel-order.dto';
+import { toRelativeUploadPath } from '../common/uploads/upload-path';
 
 @Injectable()
 export class OrdersService {
@@ -47,7 +48,7 @@ export class OrdersService {
     const status = createOrderDto.writerId ? OrderStatus.ASSIGNED : OrderStatus.ASSIGNED;
 
     // Handle multiple file uploads
-    const attachmentPaths = files?.map(f => f.path) || [];
+    const attachmentPaths = files?.map(f => toRelativeUploadPath(f.path, process.env.UPLOAD_DEST)) || [];
     const attachmentNames = files?.map(f => f.originalname) || [];
 
     const order = this.orderRepository.create({

@@ -11,6 +11,7 @@ import { Order } from '../orders/order.entity';
 import { Writer } from '../writers/writer.entity';
 import { Shift } from '../shifts/shift.entity';
 import { WritersModule } from '../writers/writers.module';
+import { ensureDir, getUploadRoot } from '../common/uploads/upload-path';
 
 @Module({
   imports: [
@@ -20,7 +21,11 @@ import { WritersModule } from '../writers/writers.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         storage: diskStorage({
-          destination: configService.get<string>('UPLOAD_DEST', './uploads'),
+          destination: (() => {
+            const uploadRoot = getUploadRoot(configService.get<string>('UPLOAD_DEST', './uploads'));
+            ensureDir(uploadRoot);
+            return uploadRoot;
+          })(),
           filename: (req, file, callback) => {
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
             const ext = extname(file.originalname);

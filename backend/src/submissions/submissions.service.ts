@@ -7,6 +7,7 @@ import { Writer, WriterStatus } from '../writers/writer.entity';
 import { Shift } from '../shifts/shift.entity';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { ReviewSubmissionDto } from './dto/review-submission.dto';
+import { toRelativeUploadPath } from '../common/uploads/upload-path';
 
 @Injectable()
 export class SubmissionsService {
@@ -66,7 +67,7 @@ export class SubmissionsService {
     const amount = createSubmissionDto.pagesWorked * createSubmissionDto.cpp;
 
     // Handle multiple files
-    const filePaths = files?.map(f => f.path) || [];
+    const filePaths = files?.map(f => toRelativeUploadPath(f.path, process.env.UPLOAD_DEST)) || [];
     const fileNames = files?.map(f => f.originalname) || [];
 
     const submissionData = {

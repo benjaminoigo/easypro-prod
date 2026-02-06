@@ -5,6 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import { SeedService } from './seed/seed.service';
+import { ensureDir, getUploadRoot } from './common/uploads/upload-path';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -30,7 +31,9 @@ async function bootstrap() {
   );
 
   // Serve static files from uploads folder
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  const uploadRoot = getUploadRoot(configService.get<string>('UPLOAD_DEST', './uploads'));
+  ensureDir(uploadRoot);
+  app.useStaticAssets(uploadRoot, {
     prefix: '/api/uploads/',
   });
 
