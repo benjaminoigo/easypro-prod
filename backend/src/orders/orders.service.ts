@@ -48,8 +48,10 @@ export class OrdersService {
     const status = createOrderDto.writerId ? OrderStatus.ASSIGNED : OrderStatus.ASSIGNED;
 
     // Handle multiple file uploads
-    const attachmentPaths = files?.map(f => toRelativeUploadPath(f.path, process.env.UPLOAD_DEST)) || [];
-    const attachmentNames = files?.map(f => f.originalname) || [];
+    const attachmentPaths = (files ?? [])
+      .map(f => toRelativeUploadPath(f.path, process.env.UPLOAD_DEST))
+      .filter((path): path is string => Boolean(path));
+    const attachmentNames = (files ?? []).map(f => f.originalname);
 
     const order = this.orderRepository.create({
       ...createOrderDto,

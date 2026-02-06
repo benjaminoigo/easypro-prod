@@ -67,8 +67,10 @@ export class SubmissionsService {
     const amount = createSubmissionDto.pagesWorked * createSubmissionDto.cpp;
 
     // Handle multiple files
-    const filePaths = files?.map(f => toRelativeUploadPath(f.path, process.env.UPLOAD_DEST)) || [];
-    const fileNames = files?.map(f => f.originalname) || [];
+    const filePaths = (files ?? [])
+      .map(f => toRelativeUploadPath(f.path, process.env.UPLOAD_DEST))
+      .filter((path): path is string => Boolean(path));
+    const fileNames = (files ?? []).map(f => f.originalname);
 
     const submissionData = {
       orderId: createSubmissionDto.orderId,
