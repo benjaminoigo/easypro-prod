@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Writer } from '../writers/writer.entity';
 import { Order, OrderStatus } from '../orders/order.entity';
@@ -238,11 +238,16 @@ export class AnalyticsService {
       .createQueryBuilder('payment')
       .select([
         'SUM(CASE WHEN status = :paid THEN amount ELSE 0 END) as totalPaid',
-        'SUM(CASE WHEN status = :pending THEN amount ELSE 0 END) as totalPending',
+        'SUM(CASE WHEN status IN (:...pending) THEN amount ELSE 0 END) as totalPending',
       ])
       .setParameters({
         paid: PaymentStatus.PAID,
-        pending: PaymentStatus.PENDING,
+        pending: [
+          PaymentStatus.PENDING,
+          PaymentStatus.PAYMENT_PENDING,
+          PaymentStatus.APPROVED,
+          PaymentStatus.PENDING_APPROVAL,
+        ],
       })
       .getRawOne();
 
@@ -277,7 +282,14 @@ export class AnalyticsService {
 
   private async getPendingPayments(limit: number): Promise<any[]> {
     return this.paymentRepository.find({
-      where: { status: PaymentStatus.PENDING },
+      where: {
+        status: In([
+          PaymentStatus.PENDING,
+          PaymentStatus.PAYMENT_PENDING,
+          PaymentStatus.APPROVED,
+          PaymentStatus.PENDING_APPROVAL,
+        ]),
+      },
       relations: ['writer', 'writer.user'],
       order: { createdAt: 'ASC' },
       take: limit,
